@@ -40,7 +40,7 @@ public class AutoGtpOutputParser {
   private static final Pattern GAMEOVER_EVENT =
           Pattern.compile("\\s*(\\w+)\\sGame\\shas\\sended.\\s*");
   private static final Pattern TRASH =
-          Pattern.compile("(\\s\\w+\\s).*");
+          Pattern.compile("\\s*(\\w+).*");
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
   private BoardView boardView;
