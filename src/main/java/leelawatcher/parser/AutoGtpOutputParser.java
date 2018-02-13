@@ -80,7 +80,7 @@ public class AutoGtpOutputParser {
         //noinspection InfiniteLoopStatement
         while ((next = is.read()) != -1) {
           buffer.append((char) next);
-          System.out.print("" + (char) next);
+          // System.out.print("" + (char) next);
           String event = nextEvent(buffer);
           if (event == null) {
             continue;
@@ -96,7 +96,7 @@ public class AutoGtpOutputParser {
             }
 
             if(!currentPlayingSeed.equals(seed)) {
-              message("Got a move for Seed: " + seed + ", not playing.\n");
+              message("Got move " + moveNum + " for game: " + seed + ", not playing.\n");
               continue;
             }
 
@@ -109,16 +109,17 @@ public class AutoGtpOutputParser {
             setInProgress(true);
             String mv = m.group(3);
             System.out.print(" \t");
-            message(moveNum + " Move:" + mv + " Seed:" + seed + "\n");
+            message("Playing move " + moveNum + " " + mv + " game: " + seed + "\n");
             PointOfPlay pop = parseMove(mv);
             boardView.move(pop);
             // we got a move
           } else {
             Matcher ggm = GAMEOVER_EVENT.matcher(event);
-            if (m.matches()) {
+            if (ggm.matches()) {
               String seed = ggm.group(1);
               if (seed.equals(currentPlayingSeed)) {
                 currentPlayingSeed = "";
+                message("Finished showing game: " + seed);
                 setInProgress(false);
               }
             }
