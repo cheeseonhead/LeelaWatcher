@@ -34,13 +34,16 @@ public class AutoGtpOutputParser {
    * (?:[BW]\\s)? is added so that both AutoGTPv11 outputs (B A1) (W F18) and AutoGTPv9 outputs (A1) (F18) will work.
    */
   private static final Pattern EVENT =
-          Pattern.compile("^(.*set\\.|\\s*\\d+\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*|Game).*", Pattern.DOTALL);
+          Pattern.compile("^(.*set\\.|\\s*(\\w+)\\s\\d+\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*|(\\w+)\\sGame).*", Pattern.DOTALL);
   private static final Pattern MOVE_EVENT =
-          Pattern.compile("\\s*\\d+\\s*\\((?:[BW]\\s)?(\\w+)\\)\\s*");
+          Pattern.compile("\\s*(\\w+)\\s(\\d+)\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*");
+  private static final Pattern GAMEOVER_EVENT =
+          Pattern.compile("(\\w+)\\sGame");
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
   private BoardView boardView;
   private boolean inProgress = false;
+  private static String currentPlayingSeed = "";
 
   @SuppressWarnings("unused")
   public String getMessage() {
@@ -82,22 +85,44 @@ public class AutoGtpOutputParser {
           }
           Matcher m = MOVE_EVENT.matcher(event);
           if (m.matches()) {
+
+            String seed = m.group(1);
+            String moveNum = m.group(2);
+
+            if (moveNum.equals("1") && currentPlayingSeed.equals("")) {
+              message(" Playing Seed: " + seed + "\n");
+              currentPlayingSeed = seed;
+            }
+
+            if(!currentPlayingSeed.equals(seed)) {
+              message(" Got a move for Seed: " + seed + ", not playing.\n");
+              continue;
+            }
+
             if (!isInProgress()) {
               boardView.reset();
               System.out.println();
               message("New Game Started!\n");
             }
+
             setInProgress(true);
-            String mv = m.group(1);
+            String mv = m.group(3);
             System.out.print(" \t");
-            message("Move:" + mv);
+            message("Move:" + mv + " Seed:" + seed + "\n");
             PointOfPlay pop = parseMove(mv);
             boardView.move(pop);
             // we got a move
           } else {
+            Matcher ggm = GAMEOVER_EVENT.matcher(event);
+            if (m.matches()) {
+              String seed = ggm.group(1);
+              if (seed.equals(currentPlayingSeed)) {
+                currentPlayingSeed = "";
+                setInProgress(false);
+              }
+            }
             // we got something other than a move, therefore the game is over
             // setting this to false causes the game to be saved to disk.
-            setInProgress(false);
           }
         }
       } catch (IllegalMoveException e) {
