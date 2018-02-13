@@ -34,11 +34,12 @@ public class AutoGtpOutputParser {
    * (?:[BW]\\s)? is added so that both AutoGTPv11 outputs (B A1) (W F18) and AutoGTPv9 outputs (A1) (F18) will work.
    */
   private static final Pattern EVENT =
-          Pattern.compile("^(.*set\\.|\\s*(\\w+)\\s\\d+\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*|(\\w+)\\sGame).*", Pattern.DOTALL);
+          Pattern.compile("^(.*set\\.|\\s*\\w+\\s\\d+\\s\\((?:[BW]\\s)?\\w+\\)\\s*|\\s*\\w+\\sGame\\shas\\sended.).*");
   private static final Pattern MOVE_EVENT =
           Pattern.compile("\\s*(\\w+)\\s(\\d+)\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*");
   private static final Pattern GAMEOVER_EVENT =
-          Pattern.compile("(\\w+)\\sGame");
+          Pattern.compile("\\s*(\\w+)\\sGame\\shas\\sended.");
+
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
   private BoardView boardView;
