@@ -39,8 +39,8 @@ public class AutoGtpOutputParser {
           Pattern.compile("\\s*(\\w+)\\s(\\d+)\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*");
   private static final Pattern GAMEOVER_EVENT =
           Pattern.compile("\\s*(\\w+)\\sGame\\shas\\sended.\\s*");
-  private static final Pattern TRASH =
-          Pattern.compile("\\s*(\\w+).*");
+  private static final Pattern LINE =
+          Pattern.compile("^(.*)$", Pattern.MULTILINE);
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
   private BoardView boardView;
@@ -92,25 +92,24 @@ public class AutoGtpOutputParser {
             String moveNum = m.group(2);
 
             if (moveNum.equals("1") && currentPlayingSeed.equals("")) {
-              message(" Playing Seed: " + seed + "\n");
               currentPlayingSeed = seed;
             }
 
             if(!currentPlayingSeed.equals(seed)) {
-              message(" Got a move for Seed: " + seed + ", not playing.\n");
+              message("Got a move for Seed: " + seed + ", not playing.\n");
               continue;
             }
 
             if (!isInProgress()) {
               boardView.reset();
               System.out.println();
-              message("New Game Started!\n");
+              message("New Game: " + seed + " Started!\n");
             }
 
             setInProgress(true);
             String mv = m.group(3);
             System.out.print(" \t");
-            message("Move:" + mv + " Seed:" + seed + "\n");
+            message(moveNum + " Move:" + mv + " Seed:" + seed + "\n");
             PointOfPlay pop = parseMove(mv);
             boardView.move(pop);
             // we got a move
@@ -145,20 +144,32 @@ public class AutoGtpOutputParser {
   }
 
   private String nextEvent(StringBuffer buff) {
-    Matcher m = EVENT.matcher(buff);
-    while(!m.matches()) {
-      Matcher trash = TRASH.matcher(buff);
-      String trashStr = trash.group(1);
-      buff.delete(0, trashStr.length());
+    String firstLine = getFirstLine(buff);
 
-      m = EVENT.matcher(buff);
+    if(firstLine == null) {
+      return null;
     }
+
+    System.out.println("======= GOT LINE: " + firstLine);
+
+    buff.delete(0, firstLine.length());
+
+    Matcher m = EVENT.matcher(firstLine);
+
     if (m.matches()) {
       String evt = m.group(1);
-      buff.delete(0, evt.length());
       return evt;
     }
     return null;
+  }
+
+  private String getFirstLine(StringBuffer buff) {
+      int newlineIndex = buff.indexOf("\n");
+      if (newlineIndex != -1) {
+        return buff.substring(0, newlineIndex + 1);
+      }
+
+      return null;
   }
 
   PointOfPlay parseMove(String move) {
