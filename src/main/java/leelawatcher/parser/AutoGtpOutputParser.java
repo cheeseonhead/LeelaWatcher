@@ -39,13 +39,19 @@ public class AutoGtpOutputParser {
           Pattern.compile("\\s*(\\w+)\\s(\\d+)\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*");
   private static final Pattern GAMEOVER_EVENT =
           Pattern.compile("\\s*(\\w+)\\sGame\\shas\\sended.\\s*");
+  private static final Pattern GAMESTART_EVENT =
+          Pattern.compile("\\s*Got\\snew\\sjob:\\s(\\w+)\\s*");
   private static final Pattern LINE =
           Pattern.compile("^(.*)$", Pattern.MULTILINE);
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
+
+  private static final int POST_ENDGAME_THRESHOLD = 300;
+
   private BoardView boardView;
   private boolean inProgress = false;
   private static String currentPlayingSeed = "";
+  private static int currentGamePriority = 0; // 0: No Game, 30: selfplay post-endgame, 40: match post-endgame, 50: selfplay, 60: match
 
   @SuppressWarnings("unused")
   public String getMessage() {
@@ -81,47 +87,89 @@ public class AutoGtpOutputParser {
         while ((next = is.read()) != -1) {
           buffer.append((char) next);
           // System.out.print("" + (char) next);
-          String event = nextEvent(buffer);
+          String event = nextLine(buffer);
           if (event == null) {
             continue;
           }
-          Matcher m = MOVE_EVENT.matcher(event);
-          if (m.matches()) {
+          Matcher moveMatcher = MOVE_EVENT.matcher(event);
+          Matcher gameOverMatcher = GAMEOVER_EVENT.matcher(event);
+          Matcher gameStartMatcher = GAMESTART_EVENT.matcher(event);
 
-            String seed = m.group(1);
-            String moveNum = m.group(2);
+          if (gameStartMatcher.matches()) {
 
-            if (moveNum.equals("1") && currentPlayingSeed.equals("")) {
+            System.out.println("EVENT: Game start");
+
+            String gameType = gameStartMatcher.group(1);
+            int gamePriority = priority(gameType);
+
+            System.out.println("Type: " + gameType + " Priority: " + gamePriority);
+
+            System.out.println("Comparing with current priority: " + currentGamePriority + "...");
+            if(gamePriority > currentGamePriority) {
+              currentPlayingSeed = "";
+              currentGamePriority = gamePriority;
+
+              setInProgress(false);
+
+              System.out.println("It's higher, clearing currentPlayingSeed. Set current priority to: " + currentGamePriority);
+            } else {
+              System.out.println("It's lower, do nothing.");
+            }
+          }
+          else if (moveMatcher.matches()) {
+
+            System.out.println("EVENT: Move");
+
+            String seed = moveMatcher.group(1);
+            int moveNum = Integer.parseInt(moveMatcher.group(2));
+            String mv = moveMatcher.group(3);
+
+            System.out.println("Move Number: " + moveNum + " Location: " + mv + " Seed: " + seed);
+
+            if(moveNum == 1 && currentPlayingSeed.equals("")) {
               currentPlayingSeed = seed;
+              System.out.println("It's move 1 and current seed is empty. Set current seed: " + currentPlayingSeed);
             }
 
+            System.out.println("Current seed is: " + currentPlayingSeed);
+
             if(!currentPlayingSeed.equals(seed)) {
-              message("Got move " + moveNum + " for game: " + seed + ", not playing.\n");
+              System.out.println("Seed is not a match, aborting.");
               continue;
             }
 
+            System.out.println("Seed is a match! Processing move...");
+
             if (!isInProgress()) {
               boardView.reset();
-              System.out.println();
-              message("New Game: " + seed + " Started!\n");
+              // message("Game: " + seed + " Started!\n");
             }
 
             setInProgress(true);
-            String mv = m.group(3);
-            System.out.print(" \t");
-            message("Playing move " + moveNum + " " + mv + " game: " + seed + "\n");
+            message("Playing move " + moveNum + " " + mv + " seed: " + seed);
             PointOfPlay pop = parseMove(mv);
             boardView.move(pop);
+
+            System.out.println("Checking current priority: " + currentGamePriority + " and move number: " + moveNum);
+            if (currentGamePriority >= 50 && moveNum >= POST_ENDGAME_THRESHOLD) {
+              System.out.println("Just entered post-endgame phase, decreasing priority...");
+              currentGamePriority -= 20;
+              System.out.println("New current priority: " + currentGamePriority);
+            }
             // we got a move
-          } else {
-            Matcher ggm = GAMEOVER_EVENT.matcher(event);
-            if (ggm.matches()) {
-              String seed = ggm.group(1);
-              if (seed.equals(currentPlayingSeed)) {
-                currentPlayingSeed = "";
-                message("Finished showing game: " + seed);
-                setInProgress(false);
-              }
+          } else if (gameOverMatcher.matches()){
+
+            System.out.println("EVENT: Game over");
+
+            String seed = gameOverMatcher.group(1);
+
+            System.out.println("Seed: " + seed);
+            if (seed.equals(currentPlayingSeed)) {
+              currentGamePriority = 0;
+              System.out.println("Current game has finished. Resetting priority: " + currentGamePriority);
+              setInProgress(false);
+            } else {
+              System.out.println("Not the game we are rendering, do nothing.");
             }
             // we got something other than a move, therefore the game is over
             // setting this to false causes the game to be saved to disk.
@@ -139,29 +187,41 @@ public class AutoGtpOutputParser {
     });
   }
 
+  static private int priority(String gameType) {
+    if(gameType.equals("match")) {
+      return 60;
+    } else if (gameType.equals("selfplay")) {
+      return 50;
+    }
+
+    return 0;
+  }
+
   private void message(String x) {
     System.out.println(x);
     setMessage(x + "\n");
   }
 
-  private String nextEvent(StringBuffer buff) {
+  private String nextLine(StringBuffer buff) {
     String firstLine = getFirstLine(buff);
 
     if(firstLine == null) {
       return null;
     }
 
-    System.out.println("======= GOT LINE: " + firstLine);
+    System.out.println("=======================================================================\nLINE: " + firstLine);
 
     buff.delete(0, firstLine.length());
 
-    Matcher m = EVENT.matcher(firstLine);
+    return firstLine;
 
-    if (m.matches()) {
-      String evt = m.group(1);
-      return evt;
-    }
-    return null;
+    // Matcher m = EVENT.matcher(firstLine);
+    //
+    // if (m.matches()) {
+    //   String evt = m.group(1);
+    //   return evt;
+    // }
+    // return null;
   }
 
   private String getFirstLine(StringBuffer buff) {
