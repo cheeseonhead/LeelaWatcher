@@ -31,6 +31,7 @@ import java.awt.*;
 import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.HashMap;
 
 
 /**
@@ -40,23 +41,26 @@ public class BoardView extends javax.swing.JPanel {
 
   private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
 
-  private Board theGame;
+  private HashMap<String, Board> boards;
+  private String currentDisplaySeed = "";
   private ImageMaker goImages = new ImageMaker();
 
   /**
    * Creates new form boardView
    */
   BoardView(Board aBoard) {
-    theGame = aBoard;
+    boards = new HashMap<>();
   }
 
   public void paint(java.awt.Graphics g) {
     // Find out how much space is available.
     super.paint(g);
 
-    if (theGame == null) {
+    if (!boards.containsKey(currentDisplaySeed)) {
       return;
     }
+
+    Board curBoard = boards.get(currentDisplaySeed);
 
     Container p = getParent();
     g.setColor(p.getBackground());
@@ -76,7 +80,7 @@ public class BoardView extends javax.swing.JPanel {
     // call to repaint() from placing a stone, and when the GUI got around to
     // calling paint() for example)
 
-    java.awt.image.BufferedImage boardImg = goImages.paintBoard(makeSize, lines, theGame.getCurrPos());
+    java.awt.image.BufferedImage boardImg = goImages.paintBoard(makeSize, lines, curBoard.getCurrPos());
 
     g.drawImage(boardImg, ((availW - makeSize) / 2), ((availH - makeSize) / 2), this);
   }
@@ -86,17 +90,40 @@ public class BoardView extends javax.swing.JPanel {
   }
 
   public void move(PointOfPlay pop, String seed) throws IllegalMoveException {
+
+    if (!boards.containsKey(seed)) {
+      return;
+    }
+
+    Board board = boards.get(seed);
+
     if (pop != null) {
-      theGame.doMove(pop.getX(), pop.getY());
+      board.doMove(pop.getX(), pop.getY());
     } else {
       // pass
-      theGame.doMove(Move.PASS, Move.PASS);
+      board.doMove(Move.PASS, Move.PASS);
     }
     repaint();
   }
 
-  public void reset() {
-    theGame.newGame("Leela", "Leela", 0, 7.5f);
+  public void addNewBoard(String seed) {
+    Board newBoard = new Board();
+
+    boards.put(seed, newBoard);
+  }
+
+  public void removeBoard(String seed) {
+    if(boards.containsKey(seed)) {
+      boards.remove(seed);
+    }
+  }
+
+  public void switchToGame(String seed) {
+    if(!boards.containsKey(seed)) {
+      return;
+    }
+
+    currentDisplaySeed = seed;
     repaint();
   }
 
