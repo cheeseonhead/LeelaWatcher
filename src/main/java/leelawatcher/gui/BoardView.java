@@ -107,8 +107,8 @@ public class BoardView extends javax.swing.JPanel {
     repaint();
   }
 
-  public void addNewBoard(String seed) {
-    Board newBoard = new Board();
+  public void addNewBoard(String seed, Board.Type type) {
+    Board newBoard = new Board(type);
 
     boards.put(seed, newBoard);
   }
