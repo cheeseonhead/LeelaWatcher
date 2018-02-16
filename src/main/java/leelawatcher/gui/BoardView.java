@@ -124,15 +124,26 @@ public class BoardView extends javax.swing.JPanel {
   public void addNewBoard(String seed, Board.Type type) {
     Board newBoard = new Board(type);
 
+    System.out.println("Adding board: " + seed + "...");
+
     boards.put(seed, newBoard);
+
+    System.out.println("Boards: " + boards.toString());
   }
 
   public void finishBoard(String seed) {
+
+    System.out.println("Finishing board: " + seed + "...");
+
     if(boards.containsKey(seed)) {
+      System.out.println("Board found!");
       Board board = boards.get(seed);
 
       finishedBoards.put(seed, board);
       boards.remove(seed);
+
+      System.out.println("Finished boards: " + finishedBoards.toString());
+      System.out.println("Boards: " + boards.toString());
     }
   }
 
@@ -140,27 +151,31 @@ public class BoardView extends javax.swing.JPanel {
     boards.clear();
     finishedBoards.clear();
     currentDisplaySeed = "";
+
+    System.out.println("Resetting...\nBoards: " + boards.toString() + " finishedBoards: " + finishedBoards.toString() + " current seed: " + currentDisplaySeed);
   }
 
   private Board getBoardToDisplay() {
 
-    String bestSeed = currentDisplaySeed;
+    System.out.println("Looking for better seed to display...");
 
-    for(Map.Entry<String, Board> entry: boards.entrySet()) {
-      String seed = entry.getKey();
+    int currentPriority = priorityOfSeed(currentDisplaySeed);
 
-      int seedPriority = priorityOfSeed(seed);
-      int bestPriority = priorityOfSeed(bestSeed);
+    System.out.println("Current seed: " + currentDisplaySeed + " priority: " + currentPriority);
 
-      if(seedPriority > bestPriority) {
-        bestSeed = seed;
-      }
-    }
+    String betterSeed = getSeedHigherThan(currentPriority);
 
-    Board board = boards.getOrDefault(bestSeed, null);
+    Board board = boards.getOrDefault(currentDisplaySeed, null);
 
-    if(!bestSeed.equals(currentDisplaySeed)) {
-      currentDisplaySeed = bestSeed;
+    if(betterSeed != null) {
+
+      System.out.println("Better seed: " + betterSeed + " found!");
+
+      currentDisplaySeed = betterSeed;
+
+      System.out.println("Current seed: " + currentDisplaySeed);
+
+      board = boards.get(currentDisplaySeed);
 
       if(delegate != null && board != null) {
         delegate.message("Playing " + board.getType().getStr() + " starting at " + board.getMoveNum() + " game: " + currentDisplaySeed);
@@ -168,6 +183,23 @@ public class BoardView extends javax.swing.JPanel {
     }
 
     return board;
+  }
+
+  private String getSeedHigherThan(int priority) {
+    for(Map.Entry<String, Board> entry: boards.entrySet()) {
+      String seed = entry.getKey();
+
+      int seedPriority = priorityOfSeed(seed);
+
+      if(seedPriority > priority) {
+
+        System.out.println("Seed: " + seed + " has higher priority: " + seedPriority);
+
+        return seed;
+      }
+    }
+
+    return null;
   }
 
   private int priorityOfSeed(String seed) {
@@ -197,7 +229,7 @@ public class BoardView extends javax.swing.JPanel {
       priority -= 20;
     }
 
-    if (seed.equals(currentDisplaySeed)) {
+    if (board.getMoveNum() <= 1) {
       priority += 5;
     }
 
@@ -210,9 +242,14 @@ public class BoardView extends javax.swing.JPanel {
   }
 
   void saveGames() {
+
+    System.out.println("Finished boards: " + finishedBoards.toString());
+
     for(Map.Entry<String, Board> entry: finishedBoards.entrySet()) {
       String seed = entry.getKey();
       Board board = entry.getValue();
+
+      System.out.println("Got game: " + seed + " isGameOver: " + board.isGameOver());
 
       if(board.isGameOver()) {
         String format = DateTimeFormatter.ISO_INSTANT
@@ -224,7 +261,11 @@ public class BoardView extends javax.swing.JPanel {
       }
     }
 
+    System.out.println("Clearing finished boards...");
+
     finishedBoards.clear();
+
+    System.out.println("Finished boards: " + finishedBoards.toString());
   }
 
 }
