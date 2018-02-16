@@ -41,8 +41,18 @@ import java.util.*;
 public class Board {
 
   public enum Type {
-    match,
-    selfplay
+    match("match"),
+    selfplay("selfplay");
+
+    Type(String str) {     // Constructor
+      this.str = str;
+    }
+
+    public String getStr() {
+        return str;
+    }
+
+    private final String str;
   }
 
   private Game gm;

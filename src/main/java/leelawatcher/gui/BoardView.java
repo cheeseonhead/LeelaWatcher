@@ -145,15 +145,17 @@ public class BoardView extends javax.swing.JPanel {
       }
     }
 
+    Board board = boards.getOrDefault(bestSeed, null);
+
     if(!bestSeed.equals(currentDisplaySeed)) {
       currentDisplaySeed = bestSeed;
 
-      if(delegate != null) {
-        delegate.message("Playing game: " + currentDisplaySeed);
+      if(delegate != null && board != null) {
+        delegate.message("Playing " + board.getType().getStr() + " game: " + currentDisplaySeed);
       }
     }
 
-    return boards.getOrDefault(bestSeed, null);
+    return board;
   }
 
   private int priorityOfSeed(String seed) {
