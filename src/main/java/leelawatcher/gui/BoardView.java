@@ -145,6 +145,8 @@ public class BoardView extends javax.swing.JPanel {
         File file = new File(format + ".sgf");
         System.out.println("Saving as:" + file);
         board.saveGame(file.getPath());
+
+        removeBoard(seed);
       }
     }
   }
