@@ -252,6 +252,16 @@ public class AutoGtpOutputParser {
     return new PointOfPlay(x, y);
   }
 
+  private static Board.Type parseType(String typeStr) {
+    if(typeStr.equals("selfplay")) {
+      return Board.Type.selfplay;
+    } else if (typeStr.equals("match")) {
+      return Board.Type.match;
+    }
+
+    return null;
+  }
+
   public void addPropertyChangeListener(PropertyChangeListener listener) {
     this.support.addPropertyChangeListener(listener);
   }
