@@ -40,12 +40,18 @@ import java.util.*;
 
 public class Board {
 
+  public enum Type {
+    match,
+    selfplay
+  }
+
   private Game gm;
   private List<Position> positions;
   private int currPos;
   private Rules ruleImp;
   private int whiteHasCap; // number of opponents stones white has captured.
   private int blackHasCap;
+  private Type type;
 
   /**
    * Create a new default board object. Default player names are "White" and
@@ -56,7 +62,7 @@ public class Board {
    * during or after a game.
    */
 
-  public Board() {
+  public Board(Type type) {
     gm = new Game("White", "Black", 0, 5.5f); // for the moment stick in a
     positions = new ArrayList<>();              // default game.
     positions.add(new Position());
@@ -64,6 +70,7 @@ public class Board {
     ruleImp = new QuickRules();
     whiteHasCap = 0;
     blackHasCap = 0;
+    this.type = type;
   }
 
   /**
@@ -150,6 +157,10 @@ public class Board {
       System.exit(0);
     }
     return numlines;
+  }
+
+  public Type getType() {
+    return type;
   }
 
   /**
