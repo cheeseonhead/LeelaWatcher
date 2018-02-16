@@ -15,6 +15,7 @@
  */
 package leelawatcher.parser;
 
+import leelawatcher.goboard.Board;
 import leelawatcher.goboard.IllegalMoveException;
 import leelawatcher.goboard.PointOfPlay;
 import leelawatcher.gui.BoardView;
@@ -46,12 +47,10 @@ public class AutoGtpOutputParser {
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
 
-  private static final int POST_ENDGAME_THRESHOLD = 300;
-
   private BoardView boardView;
   private boolean inProgress = false;
-  private static String currentPlayingSeed = "";
-  private static int currentGamePriority = 0; // 0: No Game, 30: selfplay post-endgame, 40: match post-endgame, 50: selfplay, 60: match
+
+  private Board.Type upcomingGameType = null;
 
   @SuppressWarnings("unused")
   public String getMessage() {
@@ -104,17 +103,7 @@ public class AutoGtpOutputParser {
 
             System.out.println("Type: " + gameType + " Priority: " + gamePriority);
 
-            System.out.println("Comparing with current priority: " + currentGamePriority + "...");
-            if(gamePriority > currentGamePriority) {
-              currentPlayingSeed = "";
-              currentGamePriority = gamePriority;
-
-              setInProgress(false);
-
-              System.out.println("It's higher, clearing currentPlayingSeed. Set current priority to: " + currentGamePriority);
-            } else {
-              System.out.println("It's lower, do nothing.");
-            }
+            upcomingGameType = parseType(gameType);
           }
           else if (moveMatcher.matches()) {
 
@@ -126,51 +115,23 @@ public class AutoGtpOutputParser {
 
             System.out.println("Move Number: " + moveNum + " Location: " + mv + " Seed: " + seed);
 
-            if(moveNum == 1 && currentPlayingSeed.equals("")) {
-              currentPlayingSeed = seed;
-              System.out.println("It's move 1 and current seed is empty. Set current seed: " + currentPlayingSeed);
-            }
-
-            System.out.println("Current seed is: " + currentPlayingSeed);
-
-            if(!currentPlayingSeed.equals(seed)) {
-              System.out.println("Seed is not a match, aborting.");
-              continue;
-            }
-
-            System.out.println("Seed is a match! Processing move...");
-
-            if (!isInProgress()) {
-              boardView.reset();
-              // message("Game: " + seed + " Started!\n");
+            if(moveNum == 1) {
+              boardView.addNewBoard(seed, upcomingGameType);
             }
 
             setInProgress(true);
-            message("Playing move " + moveNum + " " + mv + " seed: " + seed);
+//            message("Playing move " + moveNum + " " + mv + " seed: " + seed);
             PointOfPlay pop = parseMove(mv);
-            boardView.move(pop, "");
+            boardView.move(pop, seed, moveNum);
 
-            System.out.println("Checking current priority: " + currentGamePriority + " and move number: " + moveNum);
-            if (currentGamePriority >= 50 && moveNum >= POST_ENDGAME_THRESHOLD) {
-              System.out.println("Just entered post-endgame phase, decreasing priority...");
-              currentGamePriority -= 20;
-              System.out.println("New current priority: " + currentGamePriority);
-            }
             // we got a move
           } else if (gameOverMatcher.matches()){
-
+            setInProgress(false);
             System.out.println("EVENT: Game over");
 
             String seed = gameOverMatcher.group(1);
 
             System.out.println("Seed: " + seed);
-            if (seed.equals(currentPlayingSeed)) {
-              currentGamePriority = 0;
-              System.out.println("Current game has finished. Resetting priority: " + currentGamePriority);
-              setInProgress(false);
-            } else {
-              System.out.println("Not the game we are rendering, do nothing.");
-            }
             // we got something other than a move, therefore the game is over
             // setting this to false causes the game to be saved to disk.
           }
