@@ -52,6 +52,7 @@ public class Board {
   private int whiteHasCap; // number of opponents stones white has captured.
   private int blackHasCap;
   private Type type;
+  private int moveNum;
 
   /**
    * Create a new default board object. Default player names are "White" and
@@ -191,6 +192,10 @@ public class Board {
    */
   public boolean isGameOver() {
     return gm.isGameOver();
+  }
+
+  public void setMoveNum(int moveNum) {
+    this.moveNum = moveNum;
   }
 
   /**
