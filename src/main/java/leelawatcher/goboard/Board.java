@@ -175,6 +175,14 @@ public class Board {
   }
 
   /**
+   * Test if the game is over
+   * @return True if the game is over
+   */
+  public boolean isGameOver() {
+    return gm.isGameOver();
+  }
+
+  /**
    * Output the current game to a disk file in SGF version 4.
    * <p>
    * See <a href="http://www.redbean.com/sgf/">specification</a> for details
