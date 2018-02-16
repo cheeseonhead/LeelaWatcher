@@ -109,9 +109,13 @@ public class LeelaWatcher {
                 JScrollBar vertical = leelaWatcher.textScrollPane.getVerticalScrollBar();
                 vertical.setValue(vertical.getMaximum());
               }
+              System.out.println("evt property name: " + evt.getPropertyName());
               if ("inProgress".equals(evt.getPropertyName())) {
+                System.out.println("evt new value: " + evt.getNewValue());
                 if (Objects.equals(evt.getNewValue(), false)) {
+                  System.out.println("dontSaveGames: " + dontSaveGames);
                   if (!dontSaveGames) {
+                    System.out.println("Saving finished games...");
                     leelaWatcher.boardView.saveGames();
                   }
                 }
