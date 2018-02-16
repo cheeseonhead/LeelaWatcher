@@ -49,7 +49,7 @@ public class BoardView extends javax.swing.JPanel {
   /**
    * Creates new form boardView
    */
-  BoardView(Board aBoard) {
+  BoardView() {
     boards = new HashMap<>();
   }
 
