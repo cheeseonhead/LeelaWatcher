@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AutoGtpOutputParser {
+public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
 
   /*
    * This pattern is meant to report a match for one of 3 groups:
@@ -75,6 +75,8 @@ public class AutoGtpOutputParser {
    */
   public AutoGtpOutputParser(BoardView boardView) {
     this.boardView = boardView;
+    if(this.boardView != null)
+      this.boardView.delegate = this;
   }
 
   public void start(InputStream is) {
@@ -158,7 +160,7 @@ public class AutoGtpOutputParser {
     return 0;
   }
 
-  private void message(String x) {
+  public void message(String x) {
     System.out.println(x);
     setMessage(x + "\n");
   }

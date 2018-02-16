@@ -29,6 +29,7 @@ import leelawatcher.goboard.PointOfPlay;
 
 import java.awt.*;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,8 +41,14 @@ import java.util.Map;
  */
 public class BoardView extends javax.swing.JPanel {
 
+  public interface BoardViewDelegate {
+    void message(String str);
+  }
+
   private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
   private static final int POST_ENDGAME_THRESHOLD = 300;
+
+  public BoardViewDelegate delegate;
 
   private HashMap<String, Board> boards;
   private String currentDisplaySeed = "";
@@ -125,7 +132,7 @@ public class BoardView extends javax.swing.JPanel {
 
   private Board getBoardToDisplay() {
 
-    String bestSeed = "";
+    String bestSeed = currentDisplaySeed;
 
     for(Map.Entry<String, Board> entry: boards.entrySet()) {
       String seed = entry.getKey();
@@ -138,7 +145,13 @@ public class BoardView extends javax.swing.JPanel {
       }
     }
 
-    currentDisplaySeed = bestSeed;
+    if(!bestSeed.equals(currentDisplaySeed)) {
+      currentDisplaySeed = bestSeed;
+
+      if(delegate != null) {
+        delegate.message("Playing game: " + currentDisplaySeed);
+      }
+    }
 
     return boards.getOrDefault(bestSeed, null);
   }
