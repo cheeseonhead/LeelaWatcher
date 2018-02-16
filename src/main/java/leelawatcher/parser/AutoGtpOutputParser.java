@@ -128,12 +128,15 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
 
             // we got a move
           } else if (gameOverMatcher.matches()){
-            setInProgress(false);
             System.out.println("EVENT: Game over");
 
             String seed = gameOverMatcher.group(1);
 
             System.out.println("Seed: " + seed);
+
+            boardView.finishBoard(seed);
+
+            setInProgress(false);
             // we got something other than a move, therefore the game is over
             // setting this to false causes the game to be saved to disk.
           }

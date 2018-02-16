@@ -33,6 +33,7 @@ import java.lang.ref.WeakReference;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 
@@ -51,6 +52,7 @@ public class BoardView extends javax.swing.JPanel {
   public BoardViewDelegate delegate;
 
   private HashMap<String, Board> boards;
+  private HashMap<String, Board> finishedBoards;
   private String currentDisplaySeed = "";
   private ImageMaker goImages = new ImageMaker();
 
@@ -59,6 +61,7 @@ public class BoardView extends javax.swing.JPanel {
    */
   BoardView() {
     boards = new HashMap<>();
+    finishedBoards = new HashMap<>();
   }
 
   public void paint(java.awt.Graphics g) {
@@ -124,8 +127,11 @@ public class BoardView extends javax.swing.JPanel {
     boards.put(seed, newBoard);
   }
 
-  private void removeBoard(String seed) {
+  public void finishBoard(String seed) {
     if(boards.containsKey(seed)) {
+      Board board = boards.get(seed);
+
+      finishedBoards.put(seed, board);
       boards.remove(seed);
     }
   }
@@ -151,7 +157,7 @@ public class BoardView extends javax.swing.JPanel {
       currentDisplaySeed = bestSeed;
 
       if(delegate != null && board != null) {
-        delegate.message("Playing " + board.getType().getStr() + " game: " + currentDisplaySeed);
+        delegate.message("Playing " + board.getType().getStr() + " starting at " + board.getMoveNum() + " game: " + currentDisplaySeed);
       }
     }
 
@@ -198,7 +204,7 @@ public class BoardView extends javax.swing.JPanel {
   }
 
   void saveGames() {
-    for(Map.Entry<String, Board> entry: boards.entrySet()) {
+    for(Map.Entry<String, Board> entry: finishedBoards.entrySet()) {
       String seed = entry.getKey();
       Board board = entry.getValue();
 
@@ -210,7 +216,7 @@ public class BoardView extends javax.swing.JPanel {
         System.out.println("Saving as:" + file);
         board.saveGame(file.getPath());
 
-        removeBoard(seed);
+        finishedBoards.clear();
       }
     }
   }
