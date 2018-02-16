@@ -249,16 +249,14 @@ public class BoardView extends javax.swing.JPanel {
       String seed = entry.getKey();
       Board board = entry.getValue();
 
-      System.out.println("Got game: " + seed + " isGameOver: " + board.isGameOver());
+      System.out.println("Got game: " + seed);
 
-      if(board.isGameOver()) {
-        String format = DateTimeFormatter.ISO_INSTANT
-                .format(new Date().toInstant()).replaceAll(":", "_");
-        format += "_" + seed;
-        File file = new File(format + ".sgf");
-        System.out.println("Saving as:" + file);
-        board.saveGame(file.getPath());
-      }
+      String format = DateTimeFormatter.ISO_INSTANT
+              .format(new Date().toInstant()).replaceAll(":", "_");
+      format += "_" + seed;
+      File file = new File(format + ".sgf");
+      System.out.println("Saving as:" + file);
+      board.saveGame(file.getPath());
     }
 
     System.out.println("Clearing finished boards...");
