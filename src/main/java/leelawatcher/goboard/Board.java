@@ -164,6 +164,10 @@ public class Board {
     return type;
   }
 
+  public int getMoveNum() {
+    return moveNum;
+  }
+
   /**
    * Test if a point is on or off the board.
    *

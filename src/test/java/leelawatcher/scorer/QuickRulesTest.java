@@ -18,7 +18,7 @@ public class QuickRulesTest {
 
   @Test
   public void testIsSelfCapture() {
-    Board llCornerSelf = new Board();
+    Board llCornerSelf = new Board(Board.Type.selfplay);
 
     /* Setting up this (will play lower case letter):
     . . . . .
@@ -59,7 +59,7 @@ public class QuickRulesTest {
    */
   @Test
   public void testIssue4() throws IllegalMoveException {
-    Board issue4 = new Board();
+    Board issue4 = new Board(Board.Type.selfplay);
 
     /* Setting up this (will play lower case letter):
 
