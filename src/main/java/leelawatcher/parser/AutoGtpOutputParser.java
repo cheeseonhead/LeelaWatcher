@@ -143,6 +143,9 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             // we got something other than a move, therefore the game is over
             // setting this to false causes the game to be saved to disk.
           } else if (errorMatcher.matches()) {
+
+            System.out.println("EVENT: ERROR");
+
             boardView.reset();
             setInProgress(false);
           }
