@@ -119,7 +119,7 @@ public class BoardView extends javax.swing.JPanel {
     }
   }
 
-  public void switchToGame(String seed) {
+  public void switchToBoard(String seed) {
     if(!boards.containsKey(seed)) {
       return;
     }
