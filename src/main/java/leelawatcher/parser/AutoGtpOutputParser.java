@@ -42,6 +42,8 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
           Pattern.compile("\\s*(\\w+)\\sGame\\shas\\sended.\\s*");
   private static final Pattern GAMESTART_EVENT =
           Pattern.compile("\\s*Got\\snew\\sjob:\\s(\\w+)\\s*");
+  private static final Pattern ERROR_EVENT =
+          Pattern.compile("\\s*\\*ERROR\\*:.*");
   private static final Pattern LINE =
           Pattern.compile("^(.*)$", Pattern.MULTILINE);
 
@@ -95,6 +97,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
           Matcher moveMatcher = MOVE_EVENT.matcher(event);
           Matcher gameOverMatcher = GAMEOVER_EVENT.matcher(event);
           Matcher gameStartMatcher = GAMESTART_EVENT.matcher(event);
+          Matcher errorMatcher = ERROR_EVENT.matcher(event);
 
           if (gameStartMatcher.matches()) {
 
@@ -139,6 +142,9 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             setInProgress(false);
             // we got something other than a move, therefore the game is over
             // setting this to false causes the game to be saved to disk.
+          } else if (errorMatcher.matches()) {
+            boardView.reset();
+            setInProgress(false);
           }
         }
       } catch (IllegalMoveException e) {

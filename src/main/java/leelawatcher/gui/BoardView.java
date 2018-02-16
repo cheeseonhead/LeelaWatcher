@@ -136,6 +136,12 @@ public class BoardView extends javax.swing.JPanel {
     }
   }
 
+  public void reset() {
+    boards.clear();
+    finishedBoards.clear();
+    currentDisplaySeed = "";
+  }
+
   private Board getBoardToDisplay() {
 
     String bestSeed = currentDisplaySeed;
@@ -215,9 +221,10 @@ public class BoardView extends javax.swing.JPanel {
         File file = new File(format + ".sgf");
         System.out.println("Saving as:" + file);
         board.saveGame(file.getPath());
-
-        finishedBoards.clear();
       }
     }
+
+    finishedBoards.clear();
   }
+
 }
