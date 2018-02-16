@@ -113,7 +113,7 @@ public class LeelaWatcher {
               if ("inProgress".equals(evt.getPropertyName())) {
                 if (Objects.equals(evt.getNewValue(), false)) {
                   if (!dontSaveGames) {
-                    leelaWatcher.boardView.saveGame();
+                    leelaWatcher.boardView.saveGames();
                   }
                 }
               }

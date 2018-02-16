@@ -32,6 +32,7 @@ import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -132,11 +133,19 @@ public class BoardView extends javax.swing.JPanel {
     return PREFERRED_SIZE;
   }
 
-  void saveGame() {
-    String format = DateTimeFormatter.ISO_INSTANT
-        .format(new Date().toInstant()).replaceAll(":", "_");
-    File file = new File(format + ".sgf");
-    System.out.println("Saving as:" + file);
-    theGame.saveGame(file.getPath());
+  void saveGames() {
+    for(Map.Entry<String, Board> entry: boards.entrySet()) {
+      String seed = entry.getKey();
+      Board board = entry.getValue();
+
+      if(board.isGameOver()) {
+        String format = DateTimeFormatter.ISO_INSTANT
+                .format(new Date().toInstant()).replaceAll(":", "_");
+        format += "_" + seed;
+        File file = new File(format + ".sgf");
+        System.out.println("Saving as:" + file);
+        board.saveGame(file.getPath());
+      }
+    }
   }
 }
