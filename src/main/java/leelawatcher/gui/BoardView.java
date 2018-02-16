@@ -85,7 +85,7 @@ public class BoardView extends javax.swing.JPanel {
     paint(g);
   }
 
-  public void move(PointOfPlay pop) throws IllegalMoveException {
+  public void move(PointOfPlay pop, String seed) throws IllegalMoveException {
     if (pop != null) {
       theGame.doMove(pop.getX(), pop.getY());
     } else {

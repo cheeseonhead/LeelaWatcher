@@ -148,7 +148,7 @@ public class AutoGtpOutputParser {
             setInProgress(true);
             message("Playing move " + moveNum + " " + mv + " seed: " + seed);
             PointOfPlay pop = parseMove(mv);
-            boardView.move(pop);
+            boardView.move(pop, "");
 
             System.out.println("Checking current priority: " + currentGamePriority + " and move number: " + moveNum);
             if (currentGamePriority >= 50 && moveNum >= POST_ENDGAME_THRESHOLD) {
