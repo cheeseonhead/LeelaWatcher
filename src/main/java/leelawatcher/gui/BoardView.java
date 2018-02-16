@@ -41,6 +41,7 @@ import java.util.Map;
 public class BoardView extends javax.swing.JPanel {
 
   private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
+  private static final int POST_ENDGAME_THRESHOLD = 300;
 
   private HashMap<String, Board> boards;
   private String currentDisplaySeed = "";
@@ -57,11 +58,11 @@ public class BoardView extends javax.swing.JPanel {
     // Find out how much space is available.
     super.paint(g);
 
-    if (!boards.containsKey(currentDisplaySeed)) {
+    Board curBoard = getBoardToDisplay();
+
+    if(curBoard == null) {
       return;
     }
-
-    Board curBoard = boards.get(currentDisplaySeed);
 
     Container p = getParent();
     g.setColor(p.getBackground());
@@ -116,19 +117,64 @@ public class BoardView extends javax.swing.JPanel {
     boards.put(seed, newBoard);
   }
 
-  public void removeBoard(String seed) {
+  private void removeBoard(String seed) {
     if(boards.containsKey(seed)) {
       boards.remove(seed);
     }
   }
 
-  public void switchToBoard(String seed) {
-    if(!boards.containsKey(seed)) {
-      return;
+  private Board getBoardToDisplay() {
+
+    String bestSeed = "";
+
+    for(Map.Entry<String, Board> entry: boards.entrySet()) {
+      String seed = entry.getKey();
+
+      int seedPriority = priorityOfSeed(seed);
+      int bestPriority = priorityOfSeed(bestSeed);
+
+      if(seedPriority > bestPriority) {
+        bestSeed = seed;
+      }
     }
 
-    currentDisplaySeed = seed;
-    repaint();
+    currentDisplaySeed = bestSeed;
+
+    return boards.getOrDefault(bestSeed, null);
+  }
+
+  private int priorityOfSeed(String seed) {
+
+    if(!boards.containsKey(seed)) {
+      return 0;
+    }
+
+    Board board = boards.get(seed);
+
+    if(board.isGameOver()) {
+      return 0;
+    }
+
+    int priority = 0;
+
+    switch(board.getType()) {
+      case match:
+        priority = 60;
+        break;
+      case selfplay:
+        priority = 50;
+        break;
+    }
+
+    if (board.getMoveNum() >= POST_ENDGAME_THRESHOLD) {
+      priority -= 20;
+    }
+
+    if (seed.equals(currentDisplaySeed)) {
+      priority += 5;
+    }
+
+    return priority;
   }
 
   @Override
