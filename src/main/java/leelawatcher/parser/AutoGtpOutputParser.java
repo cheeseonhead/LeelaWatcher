@@ -51,6 +51,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
   private boolean inProgress = false;
 
   private Board.Type upcomingGameType = null;
+  private boolean printUpcomingScore = false;
 
   @SuppressWarnings("unused")
   public String getMessage() {
@@ -138,6 +139,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             System.out.println("Seed: " + seed);
 
             boardView.finishBoard(seed);
+            printUpcomingScore = true;
 
             setInProgress(false);
             // we got something other than a move, therefore the game is over
@@ -147,7 +149,12 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
 
             String score = scoreMatcher.group(1);
 
-            message("Result: " + score);
+            System.out.println("Print score? " + printUpcomingScore);
+
+            if(printUpcomingScore) {
+              message("Result: " + score);
+              printUpcomingScore = false;
+            }
           } else if (errorMatcher.matches()) {
 
             System.out.println("EVENT: ERROR");
