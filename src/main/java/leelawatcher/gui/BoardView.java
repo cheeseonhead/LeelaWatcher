@@ -54,6 +54,7 @@ public class BoardView extends javax.swing.JPanel {
   private HashMap<String, Board> boards;
   private HashMap<String, Board> finishedBoards;
   private String currentDisplaySeed = "";
+  private int firstMoveDisplayed = 0;
   private ImageMaker goImages = new ImageMaker();
 
   /**
@@ -159,13 +160,14 @@ public class BoardView extends javax.swing.JPanel {
 
     System.out.println("Looking for better seed to display...");
 
-    int currentPriority = priorityOfSeed(currentDisplaySeed);
+    Board board = boards.getOrDefault(currentDisplaySeed, null);
+
+    int curMove = (board != null) ? board.getMoveNum() : 0;
+    int currentPriority = priorityOfSeed(currentDisplaySeed) + curMove - firstMoveDisplayed;
 
     System.out.println("Current seed: " + currentDisplaySeed + " priority: " + currentPriority);
 
     String betterSeed = getSeedHigherThan(currentPriority);
-
-    Board board = boards.getOrDefault(currentDisplaySeed, null);
 
     if(betterSeed != null) {
 
@@ -176,6 +178,7 @@ public class BoardView extends javax.swing.JPanel {
       System.out.println("Current seed: " + currentDisplaySeed);
 
       board = boards.get(currentDisplaySeed);
+      firstMoveDisplayed = board.getMoveNum();
 
       if(delegate != null && board != null) {
         delegate.message("Playing " + board.getType().getStr() + " starting at " + board.getMoveNum() + " game: " + currentDisplaySeed);
@@ -218,15 +221,15 @@ public class BoardView extends javax.swing.JPanel {
 
     switch(board.getType()) {
       case match:
-        priority = 60;
+        priority = 6000;
         break;
       case selfplay:
-        priority = 50;
+        priority = 5000;
         break;
     }
 
     if (board.getMoveNum() >= POST_ENDGAME_THRESHOLD) {
-      priority -= 20;
+      priority -= 2000;
     }
 
     if (board.getMoveNum() <= 1) {
