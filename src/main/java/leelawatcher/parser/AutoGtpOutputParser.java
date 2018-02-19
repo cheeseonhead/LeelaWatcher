@@ -41,7 +41,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
   private static final Pattern GAMESTART_EVENT =
           Pattern.compile("\\s*Got\\snew\\sjob:\\s(\\w+)\\s*");
   private static final Pattern ERROR_EVENT =
-          Pattern.compile("\\s*\\*ERROR\\*:\\s(\\w+)\\s*");
+          Pattern.compile("\\s*\\*ERROR\\*:\\s(.+)\\s*");
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
 
