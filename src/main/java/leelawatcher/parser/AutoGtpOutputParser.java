@@ -43,7 +43,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
   private static final Pattern ERROR_EVENT =
           Pattern.compile("\\s*\\*ERROR\\*:\\s(.+)\\s*");
   private static final Pattern SCORE_EVENT =
-          Pattern.compile("\\s*Score:\\s(\\w+)\\s*");
+          Pattern.compile("\\s*Score:\\s(.*)\\s*");
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
 
