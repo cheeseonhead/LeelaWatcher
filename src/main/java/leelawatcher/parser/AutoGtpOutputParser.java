@@ -34,8 +34,6 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
    * 1. anything ending in 'set.'
    * (?:[BW]\\s)? is added so that both AutoGTPv11 outputs (B A1) (W F18) and AutoGTPv9 outputs (A1) (F18) will work.
    */
-  private static final Pattern EVENT =
-          Pattern.compile("^(.*set\\.|\\s*\\w+\\s\\d+\\s\\((?:[BW]\\s)?\\w+\\)\\s*|\\s*\\w+\\sGame\\shas\\sended.\\s*).*");
   private static final Pattern MOVE_EVENT =
           Pattern.compile("\\s*(\\w+)\\s(\\d+)\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*");
   private static final Pattern GAMEOVER_EVENT =
@@ -43,9 +41,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
   private static final Pattern GAMESTART_EVENT =
           Pattern.compile("\\s*Got\\snew\\sjob:\\s(\\w+)\\s*");
   private static final Pattern ERROR_EVENT =
-          Pattern.compile("\\s*\\*ERROR\\*:.*");
-  private static final Pattern LINE =
-          Pattern.compile("^(.*)$", Pattern.MULTILINE);
+          Pattern.compile("\\s*\\*ERROR\\*:\\s(\\w+)\\s*");
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
 
@@ -94,6 +90,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
           if (event == null) {
             continue;
           }
+
           Matcher moveMatcher = MOVE_EVENT.matcher(event);
           Matcher gameOverMatcher = GAMEOVER_EVENT.matcher(event);
           Matcher gameStartMatcher = GAMESTART_EVENT.matcher(event);
