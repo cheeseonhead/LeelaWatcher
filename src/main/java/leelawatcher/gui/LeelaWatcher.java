@@ -16,6 +16,8 @@
 package leelawatcher.gui;
 
 import com.google.common.io.Resources;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import leelawatcher.parser.AutoGtpOutputParser;
 import org.docopt.Docopt;
 
@@ -39,8 +41,8 @@ public class LeelaWatcher {
   private BoardView boardView;
   private JScrollPane textScrollPane;
   private JSplitPane splitPane;
-  private JButton button1;
-  private JButton button2;
+  private JButton previousButton;
+  private JButton nextButton;
   private static Process proc;
 
   // flags
@@ -162,14 +164,14 @@ public class LeelaWatcher {
     leelaOutputTextArea.setText("");
     textScrollPane.setViewportView(leelaOutputTextArea);
     final JPanel panel1 = new JPanel();
-    panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+    panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
     top.add(panel1, BorderLayout.NORTH);
-    button1 = new JButton();
-    button1.setText("Button");
-    panel1.add(button1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    button2 = new JButton();
-    button2.setText("Button");
-    panel1.add(button2, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    previousButton = new JButton();
+    previousButton.setText("Previous");
+    panel1.add(previousButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    nextButton = new JButton();
+    nextButton.setText("Next");
+    panel1.add(nextButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
   /**
