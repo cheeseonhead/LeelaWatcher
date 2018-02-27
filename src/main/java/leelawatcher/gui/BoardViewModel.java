@@ -52,7 +52,7 @@ public class BoardViewModel {
     }
 
     public String gameInfo() {
-        String resp = "Seed: " + seed + " Move: " + board.getMoveNum();
+        String resp = type.getStr() + " Move: " + board.getMoveNum() + " Seed: " + seed;
         if(score != null) {
             resp +=  " Result: " + score;
         }
