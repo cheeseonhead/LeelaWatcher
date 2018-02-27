@@ -37,8 +37,6 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
    */
   private static final Pattern MOVE_EVENT =
           Pattern.compile("\\s*(\\w+)\\s(\\d+)\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*");
-  private static final Pattern GAMEOVER_EVENT =
-          Pattern.compile("\\s*(\\w+)\\sGame\\shas\\sended.\\s*");
   private static final Pattern GAMESTART_EVENT =
           Pattern.compile("\\s*Got\\snew\\sjob:\\s(\\w+)\\s*");
   private static final Pattern ERROR_EVENT =
@@ -95,7 +93,6 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
           }
 
           Matcher moveMatcher = MOVE_EVENT.matcher(event);
-          Matcher gameOverMatcher = GAMEOVER_EVENT.matcher(event);
           Matcher gameStartMatcher = GAMESTART_EVENT.matcher(event);
           Matcher errorMatcher = ERROR_EVENT.matcher(event);
           Matcher scoreMatcher = SCORE_EVENT.matcher(event);
@@ -131,18 +128,6 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             boardView.move(pop, seed, moveNum);
 
             // we got a move
-          } else if (gameOverMatcher.matches()){
-//            System.out.println("EVENT: Game over");
-
-            String seed = gameOverMatcher.group(1);
-
-//            System.out.println("Seed: " + seed);
-
-            boardView.finishBoard(seed);
-
-            setInProgress(false);
-            // we got something other than a move, therefore the game is over
-            // setting this to false causes the game to be saved to disk.
           } else if (scoreMatcher.matches()) {
 //            System.out.println("EVENT: Score");
 
@@ -150,6 +135,8 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             String score = scoreMatcher.group(2);
 
             message("Result: " + score + " for game: " + seed);
+
+            boardView.resultBoard(seed, score);
           } else if (errorMatcher.matches()) {
 
 //            System.out.println("EVENT: ERROR");
