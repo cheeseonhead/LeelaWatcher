@@ -31,5 +31,6 @@ repositories {
 dependencies {
     compile 'com.google.guava:guava:23.5-jre'
     compile 'com.offbytwo:docopt:0.6.0.20150202'
+    compile 'com.intellij:forms_rt:7.0.3'
     testCompile('junit:junit:4.12')
 }

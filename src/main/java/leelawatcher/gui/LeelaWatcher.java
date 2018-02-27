@@ -16,7 +16,6 @@
 package leelawatcher.gui;
 
 import com.google.common.io.Resources;
-import leelawatcher.goboard.Board;
 import leelawatcher.parser.AutoGtpOutputParser;
 import org.docopt.Docopt;
 
@@ -40,6 +39,8 @@ public class LeelaWatcher {
   private BoardView boardView;
   private JScrollPane textScrollPane;
   private JSplitPane splitPane;
+  private JButton button1;
+  private JButton button2;
   private static Process proc;
 
   // flags
@@ -62,7 +63,7 @@ public class LeelaWatcher {
     if ((boolean) optMap.get("--board-only")) {
       hideOutputWindow = true;
     }
-    if(optMap.get("-t") != null) {
+    if (optMap.get("-t") != null) {
       BoardView.POST_ENDGAME_THRESHOLD = Integer.parseInt((String) optMap.get("-t"));
     }
 
@@ -73,16 +74,16 @@ public class LeelaWatcher {
     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     frame.setTitle("Leela Watcher");
     frame.addWindowListener(new WindowAdapter() {
-        @Override
-        public void windowClosing(WindowEvent e) {
-          proc.destroyForcibly();
-          super.windowClosing(e);
-        }
-      });
+      @Override
+      public void windowClosing(WindowEvent e) {
+        proc.destroyForcibly();
+        super.windowClosing(e);
+      }
+    });
 
     if (hideOutputWindow) {
       leelaWatcher.leelaOutputTextArea.setRows(0);
-      leelaWatcher.leelaOutputTextArea.setPreferredSize(new Dimension(0,0));
+      leelaWatcher.leelaOutputTextArea.setPreferredSize(new Dimension(0, 0));
       leelaWatcher.splitPane.getRightComponent().setVisible(false);
       leelaWatcher.splitPane.setDividerSize(0);
     }
@@ -90,51 +91,51 @@ public class LeelaWatcher {
     frame.pack();
     frame.setVisible(true);
     SwingUtilities.invokeLater(() -> {
-        try {
-          //noinspection SpellCheckingInspection
-          String cmd;
-          Object cmdObj = optMap.get("<cmd>");
-          if (cmdObj != null) {
-            cmd = String.valueOf(cmdObj);
-          } else {
-            cmd = "./autogtp";
-          }
-          System.out.println("cmd is " + cmd);
-          ProcessBuilder pb = new ProcessBuilder(cmd);
-          pb.directory(new File(String.valueOf( optMap.get("<dir>"))));
-          pb.redirectErrorStream(true);
-          proc = pb.start();
-          leelaWatcher.parser = new AutoGtpOutputParser(leelaWatcher.boardView);
-          leelaWatcher.parser.addPropertyChangeListener(evt -> {
-              if ("message".equals(evt.getPropertyName())) {
-                JTextArea ta = leelaWatcher.leelaOutputTextArea;
-                ta.setText(ta.getText() + evt.getNewValue());
-                JScrollBar vertical = leelaWatcher.textScrollPane.getVerticalScrollBar();
-                vertical.setValue(vertical.getMaximum());
-              }
-              System.out.println("evt property name: " + evt.getPropertyName());
-              if ("inProgress".equals(evt.getPropertyName())) {
-                System.out.println("evt new value: " + evt.getNewValue());
-                if (Objects.equals(evt.getNewValue(), false)) {
-                  System.out.println("dontSaveGames: " + dontSaveGames);
-                  if (!dontSaveGames) {
-                    System.out.println("Saving finished games...");
-                    leelaWatcher.boardView.saveGames();
-                  }
-                }
-              }
-            });
-          leelaWatcher.parser.start(new BufferedInputStream(proc.getInputStream()));
-        } catch (IOException e) {
-          e.printStackTrace();
+      try {
+        //noinspection SpellCheckingInspection
+        String cmd;
+        Object cmdObj = optMap.get("<cmd>");
+        if (cmdObj != null) {
+          cmd = String.valueOf(cmdObj);
+        } else {
+          cmd = "./autogtp";
         }
-      });
+        System.out.println("cmd is " + cmd);
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.directory(new File(String.valueOf(optMap.get("<dir>"))));
+        pb.redirectErrorStream(true);
+        proc = pb.start();
+        leelaWatcher.parser = new AutoGtpOutputParser(leelaWatcher.boardView);
+        leelaWatcher.parser.addPropertyChangeListener(evt -> {
+          if ("message".equals(evt.getPropertyName())) {
+            JTextArea ta = leelaWatcher.leelaOutputTextArea;
+            ta.setText(ta.getText() + evt.getNewValue());
+            JScrollBar vertical = leelaWatcher.textScrollPane.getVerticalScrollBar();
+            vertical.setValue(vertical.getMaximum());
+          }
+          System.out.println("evt property name: " + evt.getPropertyName());
+          if ("inProgress".equals(evt.getPropertyName())) {
+            System.out.println("evt new value: " + evt.getNewValue());
+            if (Objects.equals(evt.getNewValue(), false)) {
+              System.out.println("dontSaveGames: " + dontSaveGames);
+              if (!dontSaveGames) {
+                System.out.println("Saving finished games...");
+                leelaWatcher.boardView.saveGames();
+              }
+            }
+          }
+        });
+        leelaWatcher.parser.start(new BufferedInputStream(proc.getInputStream()));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
   }
 
   {
-    // GUI initializer generated by IntelliJ IDEA GUI Designer
-    // >>> IMPORTANT!! <<<
-    // DO NOT EDIT OR ADD ANY CODE HERE!
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
     $$$setupUI$$$();
   }
 
@@ -150,14 +151,25 @@ public class LeelaWatcher {
     top = new JPanel();
     top.setLayout(new BorderLayout(0, 0));
     splitPane = new JSplitPane();
+    splitPane.setEnabled(true);
     splitPane.setOrientation(0);
     top.add(splitPane, BorderLayout.CENTER);
     splitPane.setLeftComponent(boardView);
     textScrollPane = new JScrollPane();
     splitPane.setRightComponent(textScrollPane);
     leelaOutputTextArea = new JTextArea();
-    leelaOutputTextArea.setRows(4);
+    leelaOutputTextArea.setRows(8);
+    leelaOutputTextArea.setText("");
     textScrollPane.setViewportView(leelaOutputTextArea);
+    final JPanel panel1 = new JPanel();
+    panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+    top.add(panel1, BorderLayout.NORTH);
+    button1 = new JButton();
+    button1.setText("Button");
+    panel1.add(button1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    button2 = new JButton();
+    button2.setText("Button");
+    panel1.add(button2, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
   /**
