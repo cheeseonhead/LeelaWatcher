@@ -47,7 +47,7 @@ public class BoardView extends javax.swing.JPanel {
   }
 
   private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
-  private static final int POST_ENDGAME_THRESHOLD = 300;
+  public static int POST_ENDGAME_THRESHOLD = 300;
 
   public BoardViewDelegate delegate;
 

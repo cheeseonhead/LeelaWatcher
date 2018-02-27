@@ -10,3 +10,4 @@ Options:
   --no-sgf        Don't save an sgf file for each game
   --board-only    Don't show output window and other diagnostic features.
   --help -h       Print detailed help message
+  --threshold n   The number of moves that is considered post endgame.
