@@ -44,16 +44,16 @@ public class BoardView extends javax.swing.JPanel {
     void message(String str);
   }
 
-  public interface Test {
-    void thing(String str);
+  public interface SetGameInfo {
+    void lam(String str);
   }
 
   private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
   public static int POST_ENDGAME_THRESHOLD = 300;
-  public static int SIMUL_GAME_THRESHOLD = 2;
+  public static int SIMUL_GAME_THRESHOLD = 10;
 
   public BoardViewDelegate delegate;
-  public Test setGameInfo;
+  public SetGameInfo setGameInfo;
 
   private HashMap<String, BoardViewModel> boards;
   private HashMap<String, BoardViewModel> finishedBoards;
@@ -82,7 +82,7 @@ public class BoardView extends javax.swing.JPanel {
 
     Board board = curBoardVM.getBoard();
 
-    setGameInfo("Seed: " + curBoardVM.getSeed() + " ")
+    setGameInfo.lam(gameNumStr(curBoardVM) + " " + curBoardVM.gameInfo());
 
     Container p = getParent();
     g.setColor(p.getBackground());
@@ -139,8 +139,6 @@ public class BoardView extends javax.swing.JPanel {
       curBoard = boardList.get(index-1);
     }
 
-    System.out.println(curBoard.getSeed());
-
     repaint();
   }
 
@@ -165,24 +163,14 @@ public class BoardView extends javax.swing.JPanel {
 //    System.out.println("Boards: " + boards.toString());
   }
 
-  public void finishBoard(String seed) {
-
-//    System.out.println("Finishing board: " + seed + "...");
+  public void resultBoard(String seed, String score) {
 
     if(boards.containsKey(seed)) {
-//      System.out.println("Board found!");
       BoardViewModel board = boards.get(seed);
-
+      board.setScore(score);
       finishedBoards.put(seed, board);
       boards.remove(seed);
-
-//      System.out.println("Finished boards: " + finishedBoards.toString());
-//      System.out.println("Boards: " + boards.toString());
     }
-  }
-
-  public void resultBoard(String result) {
-
   }
 
   public void reset() {
@@ -216,6 +204,17 @@ public class BoardView extends javax.swing.JPanel {
     }
 
     return curBoard;
+  }
+
+  private String gameNumStr(BoardViewModel model) {
+    if(boardList.contains(model)) {
+      int index = boardList.indexOf(model);
+
+      return (index+1) + "/" + boardList.size();
+    }
+    else {
+      return "";
+    }
   }
 
   @Override
