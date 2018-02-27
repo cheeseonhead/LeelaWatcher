@@ -43,6 +43,7 @@ public class LeelaWatcher {
   private JSplitPane splitPane;
   private JButton previousButton;
   private JButton nextButton;
+  private JTextArea gameInfo;
   private static Process proc;
 
   // flags
@@ -51,6 +52,9 @@ public class LeelaWatcher {
 
   private void createUIComponents() {
     boardView = new BoardView();
+    boardView.setGameInfo = str -> {
+      gameInfo.setText(str);
+    };
   }
 
   private void setupListeners() {
@@ -175,14 +179,17 @@ public class LeelaWatcher {
     leelaOutputTextArea.setText("");
     textScrollPane.setViewportView(leelaOutputTextArea);
     final JPanel panel1 = new JPanel();
-    panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+    panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
     top.add(panel1, BorderLayout.NORTH);
     previousButton = new JButton();
-    previousButton.setText("Previous");
+    previousButton.setText("Prev");
     panel1.add(previousButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     nextButton = new JButton();
     nextButton.setText("Next");
     panel1.add(nextButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    gameInfo = new JTextArea();
+    gameInfo.setEditable(false);
+    panel1.add(gameInfo, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 30), null, 0, false));
   }
 
   /**

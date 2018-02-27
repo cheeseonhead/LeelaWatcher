@@ -27,6 +27,7 @@ import leelawatcher.goboard.IllegalMoveException;
 import leelawatcher.goboard.Move;
 import leelawatcher.goboard.PointOfPlay;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -43,11 +44,16 @@ public class BoardView extends javax.swing.JPanel {
     void message(String str);
   }
 
+  public interface Test {
+    void thing(String str);
+  }
+
   private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
   public static int POST_ENDGAME_THRESHOLD = 300;
   public static int SIMUL_GAME_THRESHOLD = 2;
 
   public BoardViewDelegate delegate;
+  public Test setGameInfo;
 
   private HashMap<String, BoardViewModel> boards;
   private HashMap<String, BoardViewModel> finishedBoards;
@@ -75,6 +81,8 @@ public class BoardView extends javax.swing.JPanel {
     }
 
     Board board = curBoardVM.getBoard();
+
+    setGameInfo("Seed: " + curBoardVM.getSeed() + " ")
 
     Container p = getParent();
     g.setColor(p.getBackground());
@@ -171,6 +179,10 @@ public class BoardView extends javax.swing.JPanel {
 //      System.out.println("Finished boards: " + finishedBoards.toString());
 //      System.out.println("Boards: " + boards.toString());
     }
+  }
+
+  public void resultBoard(String result) {
+
   }
 
   public void reset() {
