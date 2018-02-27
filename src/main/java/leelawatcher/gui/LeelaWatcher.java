@@ -53,6 +53,11 @@ public class LeelaWatcher {
     boardView = new BoardView();
   }
 
+  private void setupListeners() {
+    previousButton.addActionListener(e -> {
+    });
+  }
+
   public static void main(String[] args) throws IOException {
     URL usage = Resources.getResource("usage.docopts.txt");
     String doc = Resources.toString(usage, Charset.forName("UTF-8"));

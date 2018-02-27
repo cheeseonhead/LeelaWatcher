@@ -31,10 +31,7 @@ import java.awt.*;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -48,12 +45,14 @@ public class BoardView extends javax.swing.JPanel {
 
   private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
   public static int POST_ENDGAME_THRESHOLD = 300;
+  public static int SIMUL_GAME_THRESHOLD = 10;
 
   public BoardViewDelegate delegate;
 
-  private HashMap<String, Board> boards;
-  private HashMap<String, Board> finishedBoards;
-  private String currentDisplaySeed = "";
+  private HashMap<String, BoardViewModel> boards;
+  private HashMap<String, BoardViewModel> finishedBoards;
+  private ArrayList<BoardViewModel> boardList;
+  private BoardViewModel curBoard;
   private int firstMoveDisplayed = 0;
   private ImageMaker goImages = new ImageMaker();
 
@@ -69,7 +68,7 @@ public class BoardView extends javax.swing.JPanel {
     // Find out how much space is available.
     super.paint(g);
 
-    Board curBoard = getBoardToDisplay();
+    Board curBoard = getBoardToDisplay().getBoard();
 
     if(curBoard == null) {
       return;
@@ -108,7 +107,7 @@ public class BoardView extends javax.swing.JPanel {
       return;
     }
 
-    Board board = boards.get(seed);
+    Board board = boards.get(seed).getBoard();
 
     if (pop != null) {
       board.doMove(pop.getX(), pop.getY());
@@ -122,12 +121,13 @@ public class BoardView extends javax.swing.JPanel {
     repaint();
   }
 
-  public void addNewBoard(String seed, Board.Type type) {
-    Board newBoard = new Board(type);
+  public void addNewBoard(String seed, BoardViewModel.Type type) {
+    BoardViewModel newBoard = new BoardViewModel(seed, type);
 
 //    System.out.println("Adding board: " + seed + "...");
 
     boards.put(seed, newBoard);
+    addBoardToList(newBoard);
 
 //    System.out.println("Boards: " + boards.toString());
   }
@@ -138,7 +138,7 @@ public class BoardView extends javax.swing.JPanel {
 
     if(boards.containsKey(seed)) {
 //      System.out.println("Board found!");
-      Board board = boards.get(seed);
+      BoardViewModel board = boards.get(seed);
 
       finishedBoards.put(seed, board);
       boards.remove(seed);
@@ -151,92 +151,25 @@ public class BoardView extends javax.swing.JPanel {
   public void reset() {
     boards.clear();
     finishedBoards.clear();
-    currentDisplaySeed = "";
+    curBoard = null;
 
 //    System.out.println("Resetting...\nBoards: " + boards.toString() + " finishedBoards: " + finishedBoards.toString() + " current seed: " + currentDisplaySeed);
   }
 
-  private Board getBoardToDisplay() {
+  private void addBoardToList(BoardViewModel board) {
+    boardList.add(board);
 
-//    System.out.println("Looking for better seed to display...");
-
-    Board board = boards.getOrDefault(currentDisplaySeed, null);
-
-    int curMove = (board != null) ? board.getMoveNum() : 0;
-    int currentPriority = priorityOfSeed(currentDisplaySeed) + curMove - firstMoveDisplayed;
-
-//    System.out.println("Current seed: " + currentDisplaySeed + " priority: " + currentPriority);
-
-    String betterSeed = getSeedHigherThan(currentPriority);
-
-    if(betterSeed != null) {
-
-//      System.out.println("Better seed: " + betterSeed + " found!");
-
-      currentDisplaySeed = betterSeed;
-
-//      System.out.println("Current seed: " + currentDisplaySeed);
-
-      board = boards.get(currentDisplaySeed);
-      firstMoveDisplayed = board.getMoveNum();
-
-      if(delegate != null && board != null) {
-        delegate.message("Playing " + board.getType().getStr() + " starting at " + board.getMoveNum() + " game: " + currentDisplaySeed);
-      }
+    while(boardList.size() > SIMUL_GAME_THRESHOLD) {
+      boardList.remove(0);
     }
-
-    return board;
   }
 
-  private String getSeedHigherThan(int priority) {
-    for(Map.Entry<String, Board> entry: boards.entrySet()) {
-      String seed = entry.getKey();
-
-      int seedPriority = priorityOfSeed(seed);
-
-      if(seedPriority > priority) {
-
-//        System.out.println("Seed: " + seed + " has higher priority: " + seedPriority);
-
-        return seed;
-      }
+  private BoardViewModel getBoardToDisplay() {
+    if (!boardList.contains(curBoard)) {
+      curBoard = boardList.get(0);
     }
 
-    return null;
-  }
-
-  private int priorityOfSeed(String seed) {
-
-    if(!boards.containsKey(seed)) {
-      return 0;
-    }
-
-    Board board = boards.get(seed);
-
-    if(board.isGameOver()) {
-      return 0;
-    }
-
-    int priority = 0;
-
-    switch(board.getType()) {
-      case match:
-        priority = 6000;
-        break;
-      case selfplay:
-        priority = 5000;
-        break;
-    }
-
-    if (board.getMoveNum() >= POST_ENDGAME_THRESHOLD) {
-      priority -= 2000;
-    }
-
-    if (board.getMoveNum() <= 1) {
-      priority += 5;
-    }
-
-    return priority;
+    return curBoard;
   }
 
   @Override
@@ -248,18 +181,17 @@ public class BoardView extends javax.swing.JPanel {
 
 //    System.out.println("Finished boards: " + finishedBoards.toString());
 
-    for(Map.Entry<String, Board> entry: finishedBoards.entrySet()) {
-      String seed = entry.getKey();
-      Board board = entry.getValue();
+    for(Map.Entry<String, BoardViewModel> entry: finishedBoards.entrySet()) {
+      BoardViewModel boardVM = entry.getValue();
 
 //      System.out.println("Got game: " + seed);
 
       String format = DateTimeFormatter.ISO_INSTANT
               .format(new Date().toInstant()).replaceAll(":", "_");
-      format += "_" + seed;
+      format += "_" + boardVM.getSeed();
       File file = new File(format + ".sgf");
 //      System.out.println("Saving as:" + file);
-      board.saveGame(file.getPath());
+      boardVM.getBoard().saveGame(file.getPath());
     }
 
 //    System.out.println("Clearing finished boards...");

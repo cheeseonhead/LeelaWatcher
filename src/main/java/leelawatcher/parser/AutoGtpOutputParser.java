@@ -19,6 +19,7 @@ import leelawatcher.goboard.Board;
 import leelawatcher.goboard.IllegalMoveException;
 import leelawatcher.goboard.PointOfPlay;
 import leelawatcher.gui.BoardView;
+import leelawatcher.gui.BoardViewModel;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -50,7 +51,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
   private BoardView boardView;
   private boolean inProgress = false;
 
-  private Board.Type upcomingGameType = null;
+  private BoardViewModel.Type upcomingGameType = null;
 
   @SuppressWarnings("unused")
   public String getMessage() {
@@ -234,11 +235,11 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
     return new PointOfPlay(x, y);
   }
 
-  private static Board.Type parseType(String typeStr) {
+  private static BoardViewModel.Type parseType(String typeStr) {
     if(typeStr.equals("selfplay")) {
-      return Board.Type.selfplay;
+      return BoardViewModel.Type.selfplay;
     } else if (typeStr.equals("match")) {
-      return Board.Type.match;
+      return BoardViewModel.Type.match;
     }
 
     return null;

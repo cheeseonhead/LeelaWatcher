@@ -40,28 +40,12 @@ import java.util.*;
 
 public class Board {
 
-  public enum Type {
-    match("match"),
-    selfplay("selfplay");
-
-    Type(String str) {     // Constructor
-      this.str = str;
-    }
-
-    public String getStr() {
-        return str;
-    }
-
-    private final String str;
-  }
-
   private Game gm;
   private List<Position> positions;
   private int currPos;
   private Rules ruleImp;
   private int whiteHasCap; // number of opponents stones white has captured.
   private int blackHasCap;
-  private Type type;
   private int moveNum;
 
   /**
@@ -73,7 +57,7 @@ public class Board {
    * during or after a game.
    */
 
-  public Board(Type type) {
+  public Board() {
     gm = new Game("White", "Black", 0, 5.5f); // for the moment stick in a
     positions = new ArrayList<>();              // default game.
     positions.add(new Position());
@@ -81,7 +65,6 @@ public class Board {
     ruleImp = new QuickRules();
     whiteHasCap = 0;
     blackHasCap = 0;
-    this.type = type;
   }
 
   /**
@@ -168,10 +151,6 @@ public class Board {
       System.exit(0);
     }
     return numlines;
-  }
-
-  public Type getType() {
-    return type;
   }
 
   public int getMoveNum() {
