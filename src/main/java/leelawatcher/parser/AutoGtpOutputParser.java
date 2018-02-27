@@ -191,7 +191,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
       return null;
     }
 
-    System.out.println("=======================================================================\nLINE: " + firstLine);
+//    System.out.println("=======================================================================\nLINE: " + firstLine);
 
     buff.delete(0, firstLine.length());
 
