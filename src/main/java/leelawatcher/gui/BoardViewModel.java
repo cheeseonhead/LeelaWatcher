@@ -40,4 +40,9 @@ public class BoardViewModel {
     public Board getBoard() {
         return board;
     }
+
+    @Override
+    public String toString() {
+        return "Board: " + seed;
+    }
 }

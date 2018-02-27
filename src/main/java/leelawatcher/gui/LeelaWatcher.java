@@ -55,6 +55,11 @@ public class LeelaWatcher {
 
   private void setupListeners() {
     previousButton.addActionListener(e -> {
+      boardView.previousBoard();
+    });
+
+    nextButton.addActionListener(e -> {
+      boardView.nextBoard();
     });
   }
 
@@ -87,6 +92,7 @@ public class LeelaWatcher {
         super.windowClosing(e);
       }
     });
+    leelaWatcher.setupListeners();
 
     if (hideOutputWindow) {
       leelaWatcher.leelaOutputTextArea.setRows(0);
@@ -120,13 +126,13 @@ public class LeelaWatcher {
             JScrollBar vertical = leelaWatcher.textScrollPane.getVerticalScrollBar();
             vertical.setValue(vertical.getMaximum());
           }
-          System.out.println("evt property name: " + evt.getPropertyName());
+//          System.out.println("evt property name: " + evt.getPropertyName());
           if ("inProgress".equals(evt.getPropertyName())) {
-            System.out.println("evt new value: " + evt.getNewValue());
+//            System.out.println("evt new value: " + evt.getNewValue());
             if (Objects.equals(evt.getNewValue(), false)) {
-              System.out.println("dontSaveGames: " + dontSaveGames);
+//              System.out.println("dontSaveGames: " + dontSaveGames);
               if (!dontSaveGames) {
-                System.out.println("Saving finished games...");
+//                System.out.println("Saving finished games...");
                 leelaWatcher.boardView.saveGames();
               }
             }

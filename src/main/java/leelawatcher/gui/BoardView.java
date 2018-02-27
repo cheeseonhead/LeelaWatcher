@@ -45,7 +45,7 @@ public class BoardView extends javax.swing.JPanel {
 
   private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
   public static int POST_ENDGAME_THRESHOLD = 300;
-  public static int SIMUL_GAME_THRESHOLD = 10;
+  public static int SIMUL_GAME_THRESHOLD = 2;
 
   public BoardViewDelegate delegate;
 
@@ -53,13 +53,13 @@ public class BoardView extends javax.swing.JPanel {
   private HashMap<String, BoardViewModel> finishedBoards;
   private ArrayList<BoardViewModel> boardList;
   private BoardViewModel curBoard;
-  private int firstMoveDisplayed = 0;
   private ImageMaker goImages = new ImageMaker();
 
   /**
    * Creates new form boardView
    */
   BoardView() {
+    boardList = new ArrayList<>();
     boards = new HashMap<>();
     finishedBoards = new HashMap<>();
   }
@@ -68,11 +68,13 @@ public class BoardView extends javax.swing.JPanel {
     // Find out how much space is available.
     super.paint(g);
 
-    Board curBoard = getBoardToDisplay().getBoard();
+    BoardViewModel curBoardVM = getBoardToDisplay();
 
-    if(curBoard == null) {
+    if(curBoardVM == null) {
       return;
     }
+
+    Board board = curBoardVM.getBoard();
 
     Container p = getParent();
     g.setColor(p.getBackground());
@@ -92,7 +94,7 @@ public class BoardView extends javax.swing.JPanel {
     // call to repaint() from placing a stone, and when the GUI got around to
     // calling paint() for example)
 
-    java.awt.image.BufferedImage boardImg = goImages.paintBoard(makeSize, lines, curBoard.getCurrPos());
+    java.awt.image.BufferedImage boardImg = goImages.paintBoard(makeSize, lines, board.getCurrPos());
 
     g.drawImage(boardImg, ((availW - makeSize) / 2), ((availH - makeSize) / 2), this);
   }
@@ -117,6 +119,29 @@ public class BoardView extends javax.swing.JPanel {
     }
 
     board.setMoveNum(moveNum);
+
+    repaint();
+  }
+
+  public void previousBoard() {
+
+    int index = boardList.indexOf(curBoard);
+
+    if(index > 0) {
+      curBoard = boardList.get(index-1);
+    }
+
+    System.out.println(curBoard.getSeed());
+
+    repaint();
+  }
+
+  public void nextBoard() {
+    int index = boardList.indexOf(curBoard);
+
+    if(index < boardList.size() - 1) {
+      curBoard = boardList.get(index+1);
+    }
 
     repaint();
   }
@@ -164,9 +189,18 @@ public class BoardView extends javax.swing.JPanel {
     }
   }
 
+  private void printBoardList() {
+    System.out.println("[");
+    for(BoardViewModel vm: boardList) {
+      System.out.println(vm.getSeed());
+    }
+    System.out.println("]");
+  }
+
   private BoardViewModel getBoardToDisplay() {
-    if (!boardList.contains(curBoard)) {
-      curBoard = boardList.get(0);
+
+    if (curBoard == null || !boardList.contains(curBoard)) {
+      curBoard = boardList.size() > 0 ? boardList.get(0) : null;
     }
 
     return curBoard;
