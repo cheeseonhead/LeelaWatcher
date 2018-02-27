@@ -22,6 +22,7 @@ public class BoardViewModel {
     private Type type;
     private String seed;
     private Board board;
+    private String score;
 
     BoardViewModel(String seed, Type type) {
         this.type = type;
@@ -39,6 +40,24 @@ public class BoardViewModel {
 
     public Board getBoard() {
         return board;
+    }
+
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
+
+    public String gameInfo() {
+        String resp = "Seed: " + seed + " Move: " + board.getMoveNum();
+        if(score != null) {
+            resp +=  " Result: " + score;
+        }
+
+        return resp;
     }
 
     @Override
