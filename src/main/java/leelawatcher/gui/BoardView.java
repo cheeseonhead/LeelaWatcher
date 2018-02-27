@@ -29,8 +29,12 @@ import leelawatcher.goboard.PointOfPlay;
 
 import java.awt.*;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 
 /**
@@ -38,23 +42,36 @@ import java.util.Date;
  */
 public class BoardView extends javax.swing.JPanel {
 
-  private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
+  public interface BoardViewDelegate {
+    void message(String str);
+  }
 
-  private Board theGame;
+  private static final Dimension PREFERRED_SIZE = new Dimension(500, 500);
+  public static int POST_ENDGAME_THRESHOLD = 300;
+
+  public BoardViewDelegate delegate;
+
+  private HashMap<String, Board> boards;
+  private HashMap<String, Board> finishedBoards;
+  private String currentDisplaySeed = "";
+  private int firstMoveDisplayed = 0;
   private ImageMaker goImages = new ImageMaker();
 
   /**
    * Creates new form boardView
    */
-  BoardView(Board aBoard) {
-    theGame = aBoard;
+  BoardView() {
+    boards = new HashMap<>();
+    finishedBoards = new HashMap<>();
   }
 
   public void paint(java.awt.Graphics g) {
     // Find out how much space is available.
     super.paint(g);
 
-    if (theGame == null) {
+    Board curBoard = getBoardToDisplay();
+
+    if(curBoard == null) {
       return;
     }
 
@@ -76,7 +93,7 @@ public class BoardView extends javax.swing.JPanel {
     // call to repaint() from placing a stone, and when the GUI got around to
     // calling paint() for example)
 
-    java.awt.image.BufferedImage boardImg = goImages.paintBoard(makeSize, lines, theGame.getCurrPos());
+    java.awt.image.BufferedImage boardImg = goImages.paintBoard(makeSize, lines, curBoard.getCurrPos());
 
     g.drawImage(boardImg, ((availW - makeSize) / 2), ((availH - makeSize) / 2), this);
   }
@@ -85,19 +102,141 @@ public class BoardView extends javax.swing.JPanel {
     paint(g);
   }
 
-  public void move(PointOfPlay pop) throws IllegalMoveException {
+  public void move(PointOfPlay pop, String seed, int moveNum) throws IllegalMoveException {
+
+    if (!boards.containsKey(seed)) {
+      return;
+    }
+
+    Board board = boards.get(seed);
+
     if (pop != null) {
-      theGame.doMove(pop.getX(), pop.getY());
+      board.doMove(pop.getX(), pop.getY());
     } else {
       // pass
-      theGame.doMove(Move.PASS, Move.PASS);
+      board.doMove(Move.PASS, Move.PASS);
     }
+
+    board.setMoveNum(moveNum);
+
     repaint();
   }
 
+  public void addNewBoard(String seed, Board.Type type) {
+    Board newBoard = new Board(type);
+
+//    System.out.println("Adding board: " + seed + "...");
+
+    boards.put(seed, newBoard);
+
+//    System.out.println("Boards: " + boards.toString());
+  }
+
+  public void finishBoard(String seed) {
+
+//    System.out.println("Finishing board: " + seed + "...");
+
+    if(boards.containsKey(seed)) {
+//      System.out.println("Board found!");
+      Board board = boards.get(seed);
+
+      finishedBoards.put(seed, board);
+      boards.remove(seed);
+
+//      System.out.println("Finished boards: " + finishedBoards.toString());
+//      System.out.println("Boards: " + boards.toString());
+    }
+  }
+
   public void reset() {
-    theGame.newGame("Leela", "Leela", 0, 7.5f);
-    repaint();
+    boards.clear();
+    finishedBoards.clear();
+    currentDisplaySeed = "";
+
+//    System.out.println("Resetting...\nBoards: " + boards.toString() + " finishedBoards: " + finishedBoards.toString() + " current seed: " + currentDisplaySeed);
+  }
+
+  private Board getBoardToDisplay() {
+
+//    System.out.println("Looking for better seed to display...");
+
+    Board board = boards.getOrDefault(currentDisplaySeed, null);
+
+    int curMove = (board != null) ? board.getMoveNum() : 0;
+    int currentPriority = priorityOfSeed(currentDisplaySeed) + curMove - firstMoveDisplayed;
+
+//    System.out.println("Current seed: " + currentDisplaySeed + " priority: " + currentPriority);
+
+    String betterSeed = getSeedHigherThan(currentPriority);
+
+    if(betterSeed != null) {
+
+//      System.out.println("Better seed: " + betterSeed + " found!");
+
+      currentDisplaySeed = betterSeed;
+
+//      System.out.println("Current seed: " + currentDisplaySeed);
+
+      board = boards.get(currentDisplaySeed);
+      firstMoveDisplayed = board.getMoveNum();
+
+      if(delegate != null && board != null) {
+        delegate.message("Playing " + board.getType().getStr() + " starting at " + board.getMoveNum() + " game: " + currentDisplaySeed);
+      }
+    }
+
+    return board;
+  }
+
+  private String getSeedHigherThan(int priority) {
+    for(Map.Entry<String, Board> entry: boards.entrySet()) {
+      String seed = entry.getKey();
+
+      int seedPriority = priorityOfSeed(seed);
+
+      if(seedPriority > priority) {
+
+//        System.out.println("Seed: " + seed + " has higher priority: " + seedPriority);
+
+        return seed;
+      }
+    }
+
+    return null;
+  }
+
+  private int priorityOfSeed(String seed) {
+
+    if(!boards.containsKey(seed)) {
+      return 0;
+    }
+
+    Board board = boards.get(seed);
+
+    if(board.isGameOver()) {
+      return 0;
+    }
+
+    int priority = 0;
+
+    switch(board.getType()) {
+      case match:
+        priority = 6000;
+        break;
+      case selfplay:
+        priority = 5000;
+        break;
+    }
+
+    if (board.getMoveNum() >= POST_ENDGAME_THRESHOLD) {
+      priority -= 2000;
+    }
+
+    if (board.getMoveNum() <= 1) {
+      priority += 5;
+    }
+
+    return priority;
   }
 
   @Override
@@ -105,11 +244,29 @@ public class BoardView extends javax.swing.JPanel {
     return PREFERRED_SIZE;
   }
 
-  void saveGame() {
-    String format = DateTimeFormatter.ISO_INSTANT
-        .format(new Date().toInstant()).replaceAll(":", "_");
-    File file = new File(format + ".sgf");
-    System.out.println("Saving as:" + file);
-    theGame.saveGame(file.getPath());
+  void saveGames() {
+
+//    System.out.println("Finished boards: " + finishedBoards.toString());
+
+    for(Map.Entry<String, Board> entry: finishedBoards.entrySet()) {
+      String seed = entry.getKey();
+      Board board = entry.getValue();
+
+//      System.out.println("Got game: " + seed);
+
+      String format = DateTimeFormatter.ISO_INSTANT
+              .format(new Date().toInstant()).replaceAll(":", "_");
+      format += "_" + seed;
+      File file = new File(format + ".sgf");
+//      System.out.println("Saving as:" + file);
+      board.saveGame(file.getPath());
+    }
+
+//    System.out.println("Clearing finished boards...");
+
+    finishedBoards.clear();
+
+//    System.out.println("Finished boards: " + finishedBoards.toString());
   }
+
 }

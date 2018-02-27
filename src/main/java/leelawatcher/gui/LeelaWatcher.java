@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class LeelaWatcher {
-  private Board currBoard = new Board();
   private AutoGtpOutputParser parser;
 
   private JTextArea leelaOutputTextArea;
@@ -48,7 +47,7 @@ public class LeelaWatcher {
   private static boolean hideOutputWindow;
 
   private void createUIComponents() {
-    boardView = new BoardView(currBoard);
+    boardView = new BoardView();
   }
 
   public static void main(String[] args) throws IOException {
@@ -62,6 +61,9 @@ public class LeelaWatcher {
     }
     if ((boolean) optMap.get("--board-only")) {
       hideOutputWindow = true;
+    }
+    if(optMap.get("-t") != null) {
+      BoardView.POST_ENDGAME_THRESHOLD = Integer.parseInt((String) optMap.get("-t"));
     }
 
 
@@ -110,10 +112,14 @@ public class LeelaWatcher {
                 JScrollBar vertical = leelaWatcher.textScrollPane.getVerticalScrollBar();
                 vertical.setValue(vertical.getMaximum());
               }
+              System.out.println("evt property name: " + evt.getPropertyName());
               if ("inProgress".equals(evt.getPropertyName())) {
+                System.out.println("evt new value: " + evt.getNewValue());
                 if (Objects.equals(evt.getNewValue(), false)) {
+                  System.out.println("dontSaveGames: " + dontSaveGames);
                   if (!dontSaveGames) {
-                    leelaWatcher.boardView.saveGame();
+                    System.out.println("Saving finished games...");
+                    leelaWatcher.boardView.saveGames();
                   }
                 }
               }
