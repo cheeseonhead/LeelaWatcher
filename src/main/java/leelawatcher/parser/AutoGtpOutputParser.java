@@ -87,7 +87,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
         //noinspection InfiniteLoopStatement
         while ((next = is.read()) != -1) {
           buffer.append((char) next);
-          // System.out.print("" + (char) next);
+           System.out.print("" + (char) next);
           String event = nextLine(buffer);
           if (event == null) {
             continue;
