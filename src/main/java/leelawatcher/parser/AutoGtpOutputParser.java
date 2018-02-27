@@ -43,7 +43,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
   private static final Pattern ERROR_EVENT =
           Pattern.compile("\\s*\\*ERROR\\*:\\s(.+)\\s*");
   private static final Pattern SCORE_EVENT =
-          Pattern.compile("\\s*Score:\\s(.*)\\s*");
+          Pattern.compile("\\s*(\\w+)\\sScore:\\s(.*)\\s*");
 
   private static final Pattern MOVE = Pattern.compile("(?:(.)(\\d+))|(pass)|(resign)");
 
@@ -51,7 +51,6 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
   private boolean inProgress = false;
 
   private Board.Type upcomingGameType = null;
-  private boolean printUpcomingScore = false;
 
   @SuppressWarnings("unused")
   public String getMessage() {
@@ -139,7 +138,6 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             System.out.println("Seed: " + seed);
 
             boardView.finishBoard(seed);
-            printUpcomingScore = true;
 
             setInProgress(false);
             // we got something other than a move, therefore the game is over
@@ -147,14 +145,10 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
           } else if (scoreMatcher.matches()) {
             System.out.println("EVENT: Score");
 
-            String score = scoreMatcher.group(1);
+            String seed = scoreMatcher.group(1);
+            String score = scoreMatcher.group(2);
 
-            System.out.println("Print score? " + printUpcomingScore);
-
-            if(printUpcomingScore) {
-              message("Result: " + score);
-              printUpcomingScore = false;
-            }
+            message("Result: " + score + " for game: " + seed);
           } else if (errorMatcher.matches()) {
 
             System.out.println("EVENT: ERROR");
