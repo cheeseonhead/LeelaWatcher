@@ -101,24 +101,24 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
 
           if (gameStartMatcher.matches()) {
 
-            System.out.println("EVENT: Game start");
+//            System.out.println("EVENT: Game start");
 
             String gameType = gameStartMatcher.group(1);
             int gamePriority = priority(gameType);
 
-            System.out.println("Type: " + gameType + " Priority: " + gamePriority);
+//            System.out.println("Type: " + gameType + " Priority: " + gamePriority);
 
             upcomingGameType = parseType(gameType);
           }
           else if (moveMatcher.matches()) {
 
-            System.out.println("EVENT: Move");
+//            System.out.println("EVENT: Move");
 
             String seed = moveMatcher.group(1);
             int moveNum = Integer.parseInt(moveMatcher.group(2));
             String mv = moveMatcher.group(3);
 
-            System.out.println("Move Number: " + moveNum + " Location: " + mv + " Seed: " + seed);
+//            System.out.println("Move Number: " + moveNum + " Location: " + mv + " Seed: " + seed);
 
             if(moveNum == 1) {
               boardView.addNewBoard(seed, upcomingGameType);
@@ -131,11 +131,11 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
 
             // we got a move
           } else if (gameOverMatcher.matches()){
-            System.out.println("EVENT: Game over");
+//            System.out.println("EVENT: Game over");
 
             String seed = gameOverMatcher.group(1);
 
-            System.out.println("Seed: " + seed);
+//            System.out.println("Seed: " + seed);
 
             boardView.finishBoard(seed);
 
@@ -143,7 +143,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             // we got something other than a move, therefore the game is over
             // setting this to false causes the game to be saved to disk.
           } else if (scoreMatcher.matches()) {
-            System.out.println("EVENT: Score");
+//            System.out.println("EVENT: Score");
 
             String seed = scoreMatcher.group(1);
             String score = scoreMatcher.group(2);
@@ -151,7 +151,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             message("Result: " + score + " for game: " + seed);
           } else if (errorMatcher.matches()) {
 
-            System.out.println("EVENT: ERROR");
+//            System.out.println("EVENT: ERROR");
 
             boardView.reset();
             setInProgress(false);

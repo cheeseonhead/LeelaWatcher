@@ -125,26 +125,26 @@ public class BoardView extends javax.swing.JPanel {
   public void addNewBoard(String seed, Board.Type type) {
     Board newBoard = new Board(type);
 
-    System.out.println("Adding board: " + seed + "...");
+//    System.out.println("Adding board: " + seed + "...");
 
     boards.put(seed, newBoard);
 
-    System.out.println("Boards: " + boards.toString());
+//    System.out.println("Boards: " + boards.toString());
   }
 
   public void finishBoard(String seed) {
 
-    System.out.println("Finishing board: " + seed + "...");
+//    System.out.println("Finishing board: " + seed + "...");
 
     if(boards.containsKey(seed)) {
-      System.out.println("Board found!");
+//      System.out.println("Board found!");
       Board board = boards.get(seed);
 
       finishedBoards.put(seed, board);
       boards.remove(seed);
 
-      System.out.println("Finished boards: " + finishedBoards.toString());
-      System.out.println("Boards: " + boards.toString());
+//      System.out.println("Finished boards: " + finishedBoards.toString());
+//      System.out.println("Boards: " + boards.toString());
     }
   }
 
@@ -153,29 +153,29 @@ public class BoardView extends javax.swing.JPanel {
     finishedBoards.clear();
     currentDisplaySeed = "";
 
-    System.out.println("Resetting...\nBoards: " + boards.toString() + " finishedBoards: " + finishedBoards.toString() + " current seed: " + currentDisplaySeed);
+//    System.out.println("Resetting...\nBoards: " + boards.toString() + " finishedBoards: " + finishedBoards.toString() + " current seed: " + currentDisplaySeed);
   }
 
   private Board getBoardToDisplay() {
 
-    System.out.println("Looking for better seed to display...");
+//    System.out.println("Looking for better seed to display...");
 
     Board board = boards.getOrDefault(currentDisplaySeed, null);
 
     int curMove = (board != null) ? board.getMoveNum() : 0;
     int currentPriority = priorityOfSeed(currentDisplaySeed) + curMove - firstMoveDisplayed;
 
-    System.out.println("Current seed: " + currentDisplaySeed + " priority: " + currentPriority);
+//    System.out.println("Current seed: " + currentDisplaySeed + " priority: " + currentPriority);
 
     String betterSeed = getSeedHigherThan(currentPriority);
 
     if(betterSeed != null) {
 
-      System.out.println("Better seed: " + betterSeed + " found!");
+//      System.out.println("Better seed: " + betterSeed + " found!");
 
       currentDisplaySeed = betterSeed;
 
-      System.out.println("Current seed: " + currentDisplaySeed);
+//      System.out.println("Current seed: " + currentDisplaySeed);
 
       board = boards.get(currentDisplaySeed);
       firstMoveDisplayed = board.getMoveNum();
@@ -196,7 +196,7 @@ public class BoardView extends javax.swing.JPanel {
 
       if(seedPriority > priority) {
 
-        System.out.println("Seed: " + seed + " has higher priority: " + seedPriority);
+//        System.out.println("Seed: " + seed + " has higher priority: " + seedPriority);
 
         return seed;
       }
@@ -246,27 +246,27 @@ public class BoardView extends javax.swing.JPanel {
 
   void saveGames() {
 
-    System.out.println("Finished boards: " + finishedBoards.toString());
+//    System.out.println("Finished boards: " + finishedBoards.toString());
 
     for(Map.Entry<String, Board> entry: finishedBoards.entrySet()) {
       String seed = entry.getKey();
       Board board = entry.getValue();
 
-      System.out.println("Got game: " + seed);
+//      System.out.println("Got game: " + seed);
 
       String format = DateTimeFormatter.ISO_INSTANT
               .format(new Date().toInstant()).replaceAll(":", "_");
       format += "_" + seed;
       File file = new File(format + ".sgf");
-      System.out.println("Saving as:" + file);
+//      System.out.println("Saving as:" + file);
       board.saveGame(file.getPath());
     }
 
-    System.out.println("Clearing finished boards...");
+//    System.out.println("Clearing finished boards...");
 
     finishedBoards.clear();
 
-    System.out.println("Finished boards: " + finishedBoards.toString());
+//    System.out.println("Finished boards: " + finishedBoards.toString());
   }
 
 }
