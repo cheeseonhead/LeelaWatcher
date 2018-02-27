@@ -7,7 +7,7 @@ Usage:
  LeelaWatcher-1.1.0-SNAPSHOT.jar [--help] [options] <dir> [<cmd>]
 
 Options:
-  --no-sgf        Don't save an sgf file for each game
-  --board-only    Don't show output window and other diagnostic features.
-  --help -h       Print detailed help message
-  --threshold n   The number of moves that is considered post endgame.
+  --no-sgf      Don't save an sgf file for each game
+  --board-only  Don't show output window and other diagnostic features.
+  --help -h     Print detailed help message
+  -t <n>        The number of moves that is considered post endgame.
