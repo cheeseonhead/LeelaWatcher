@@ -62,7 +62,7 @@ public class LeelaWatcher {
     if ((boolean) optMap.get("--board-only")) {
       hideOutputWindow = true;
     }
-    if(optMap.containsKey("-t")) {
+    if(optMap.get("-t") != null) {
       BoardView.POST_ENDGAME_THRESHOLD = Integer.parseInt((String) optMap.get("-t"));
     }
 
