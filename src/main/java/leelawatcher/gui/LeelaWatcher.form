@@ -69,6 +69,7 @@
             </constraints>
             <properties>
               <editable value="false"/>
+              <rows value="1"/>
             </properties>
           </component>
         </children>
