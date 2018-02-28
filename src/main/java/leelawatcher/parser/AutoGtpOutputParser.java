@@ -137,6 +137,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             message("Result: " + score + " for game: " + seed);
 
             boardView.resultBoard(seed, score);
+            setInProgress(false);
           } else if (errorMatcher.matches()) {
 
 //            System.out.println("EVENT: ERROR");
