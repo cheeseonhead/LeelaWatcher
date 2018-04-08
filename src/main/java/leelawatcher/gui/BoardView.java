@@ -187,6 +187,12 @@ public class BoardView extends javax.swing.JPanel {
     while(boardList.size() > SIMUL_GAME_THRESHOLD) {
       boardList.remove(0);
     }
+
+    int index = boardList.indexOf(curBoard);
+
+    if(index == boardList.size() - 1) {
+      this.nextBoard();
+    }
   }
 
   private void printBoardList() {
