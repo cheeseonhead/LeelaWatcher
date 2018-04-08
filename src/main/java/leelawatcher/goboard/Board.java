@@ -47,6 +47,7 @@ public class Board {
   private int whiteHasCap; // number of opponents stones white has captured.
   private int blackHasCap;
   private int moveNum;
+  private float winRate;
 
   /**
    * Create a new default board object. Default player names are "White" and
@@ -155,6 +156,15 @@ public class Board {
 
   public int getMoveNum() {
     return moveNum;
+  }
+
+
+  public float getWinRate() {
+    return winRate;
+  }
+
+  public void setWinRate(float winRate) {
+    this.winRate = winRate;
   }
 
   /**
