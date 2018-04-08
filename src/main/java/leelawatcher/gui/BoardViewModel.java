@@ -23,6 +23,7 @@ public class BoardViewModel {
     private String seed;
     private Board board;
     private String score;
+    private float winRate;
 
     BoardViewModel(String seed, Type type) {
         this.type = type;
@@ -42,6 +43,13 @@ public class BoardViewModel {
         return board;
     }
 
+    public float getWinRate() {
+        return winRate;
+    }
+
+    public void setWinRate(float winRate) {
+        this.winRate = winRate;
+    }
 
     public String getScore() {
         return score;
