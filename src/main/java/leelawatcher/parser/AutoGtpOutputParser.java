@@ -126,7 +126,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             setInProgress(true);
 //            message("Playing move " + moveNum + " " + mv + " seed: " + seed);
             PointOfPlay pop = parseMove(mv);
-            boardView.move(pop, seed, moveNum);
+            boardView.move(pop, seed, moveNum, winRate);
 
             // we got a move
           } else if (scoreMatcher.matches()) {
