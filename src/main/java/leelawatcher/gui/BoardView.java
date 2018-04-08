@@ -111,7 +111,7 @@ public class BoardView extends javax.swing.JPanel {
     paint(g);
   }
 
-  public void move(PointOfPlay pop, String seed, int moveNum) throws IllegalMoveException {
+  public void move(PointOfPlay pop, String seed, int moveNum, float winRate) throws IllegalMoveException {
 
     if (!boards.containsKey(seed)) {
       return;
@@ -127,6 +127,7 @@ public class BoardView extends javax.swing.JPanel {
     }
 
     board.setMoveNum(moveNum);
+    board.setWinRate(winRate);
 
     repaint();
   }
