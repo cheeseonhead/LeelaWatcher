@@ -37,6 +37,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
    */
   private static final Pattern MOVE_EVENT =
           Pattern.compile("\\s*(\\w+)\\s(\\d+)\\s\\((?:[BW]\\s)?(\\w+)\\)\\s([0-9.]*)\\s*");
+//          Pattern.compile("\\s*(\\w+)\\s(\\d+)\\s\\((?:[BW]\\s)?(\\w+)\\)\\s*");
   private static final Pattern GAMESTART_EVENT =
           Pattern.compile("\\s*Got\\snew\\sjob:\\s(\\w+)\\s*");
   private static final Pattern ERROR_EVENT =
@@ -116,6 +117,7 @@ public class AutoGtpOutputParser implements BoardView.BoardViewDelegate {
             int moveNum = Integer.parseInt(moveMatcher.group(2));
             String mv = moveMatcher.group(3);
             float winRate = Float.parseFloat(moveMatcher.group(4));
+//            float winRate = 0;
 
 //            System.out.println("Move Number: " + moveNum + " Location: " + mv + " Seed: " + seed);
 
